@@ -1,16 +1,21 @@
-.PHONY: dev dev-tools dev-frontend dev-down prod-build prod-up prod-down ps logs logs-backend logs-frontend config config-dev config-prod
+.PHONY: dev dev-up dev-db dev-tools dev-frontend dev-down prod-build prod-up prod-down ps logs logs-backend logs-frontend config config-dev config-prod
 
 COMPOSE_DEV = docker compose -f docker-compose.yml -f docker-compose.dev.yml
 COMPOSE_PROD = docker compose -f docker-compose.yml -f docker-compose.prod.yml
 
-dev:
+dev: dev-up
+
+dev-up:
+	$(COMPOSE_DEV) up -d --build frontend
+
+dev-db:
 	docker compose -f docker-compose.yml up -d db
 
 dev-tools:
 	docker compose -f docker-compose.yml --profile tools up -d db pgadmin
 
 dev-frontend:
-	$(COMPOSE_DEV) up -d frontend
+	$(COMPOSE_DEV) up -d --build frontend
 
 dev-down:
 	$(COMPOSE_DEV) down

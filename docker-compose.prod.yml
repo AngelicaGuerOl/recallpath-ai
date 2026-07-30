@@ -30,7 +30,7 @@ services:
 
   frontend:
     build:
-      context: ./recallpath-frontend/land-sales-frontend
+      context: ./recallpath-frontend/app
       dockerfile: Dockerfile
     restart: unless-stopped
     ports:

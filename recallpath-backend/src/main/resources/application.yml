@@ -1,6 +1,6 @@
 spring:
   application:
-    name: land-sales-backend
+    name: recallpath-backend
 
   config:
     import:

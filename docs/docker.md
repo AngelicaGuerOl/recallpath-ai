@@ -51,7 +51,7 @@ SPRING_DATASOURCE_PASSWORD=<tu DB_PASSWORD real de .env> \
 Frontend local:
 
 ```bash
-cd recallpath-frontend/land-sales-frontend
+cd recallpath-frontend/app
 npm ci
 npm run dev
 ```
