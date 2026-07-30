@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:${DB_PORT:5435}/${DB_NAME:recallpath}}
+    username: ${SPRING_DATASOURCE_USERNAME:${DB_USER:recallpath}}
+    password: ${SPRING_DATASOURCE_PASSWORD:${DB_PASSWORD:recall12}}
+  jpa:
+    show-sql: true
+
+server:
+  address: 0.0.0.0
+
+logging:
+  level:
+    org.hibernate.SQL: debug

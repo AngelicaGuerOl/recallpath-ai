@@ -1,0 +1,26 @@
+services:
+  frontend:
+    build:
+      context: ./recallpath-frontend/land-sales-frontend
+      dockerfile: Dockerfile.dev
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api}
+      VITE_API_PROXY_TARGET: ${VITE_API_PROXY_TARGET:-http://host.docker.internal:8080}
+      CHOKIDAR_USEPOLLING: ${CHOKIDAR_USEPOLLING:-true}
+    ports:
+      - "127.0.0.1:${FRONTEND_PORT:-5173}:5173"
+    volumes:
+      - ./recallpath-frontend/land-sales-frontend:/app
+      - recallpath_frontend_node_modules:/app/node_modules
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - recallpath-network
+
+volumes:
+  recallpath_frontend_node_modules:
+    name: recallpath_frontend_node_modules
