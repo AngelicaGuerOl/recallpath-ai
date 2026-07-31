@@ -4,13 +4,11 @@ import com.angelica.recallpathbackend.features.generation.dto.FlashcardGeneratio
 import com.angelica.recallpathbackend.features.generation.dto.FlashcardGenerationResult;
 import com.angelica.recallpathbackend.features.generation.dto.GeneratedCardDto;
 import com.angelica.recallpathbackend.flashcard.entity.FlashcardDifficulty;
-import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-@Service
 public class FakeFlashcardGenerationService implements FlashcardGenerationService {
 
     @Override
@@ -23,7 +21,7 @@ public class FakeFlashcardGenerationService implements FlashcardGenerationServic
 
         List<GeneratedCardDto> cards = new ArrayList<>();
         int count = context.requestedCardCount(); // Generar exactamente la cantidad solicitada
-        long seed = context.hashCode();
+        long seed = context.pageTexts().hashCode();
         Random random = new Random(seed);
 
         for (int i = 1; i <= count; i++) {

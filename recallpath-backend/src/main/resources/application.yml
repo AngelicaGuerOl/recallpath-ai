@@ -62,3 +62,11 @@ app:
   demo:
     enabled: ${APP_DEMO_ENABLED:false}
     username: ${APP_DEMO_USERNAME:}
+
+  ai:
+    provider: ${AI_PROVIDER:fake}
+    gemini:
+      api-key: ${GEMINI_API_KEY:}
+      model: ${GEMINI_MODEL:gemini-3.5-flash-lite}
+      timeout-seconds: ${GEMINI_TIMEOUT_SECONDS:120}
+      max-output-tokens: ${GEMINI_MAX_OUTPUT_TOKENS:8192}

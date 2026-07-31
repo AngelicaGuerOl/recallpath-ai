@@ -68,6 +68,7 @@ export function GenerateFlashcardsDialog({
   });
 
   const onSubmit = (data: GenerateFormValues) => {
+    if (createRun.isPending) return; // Prevent double-submit
     createRun.mutate(
       {
         documentId,
@@ -111,14 +112,28 @@ export function GenerateFlashcardsDialog({
                     }
                     return 'El documento no está listo para extracción o el conjunto está archivado.';
                   }
+                  if (err?.status === 500) {
+                    const msg = err.message ?? '';
+                    if (msg.includes('límite')) return 'El servicio de IA alcanzó temporalmente su límite. Intenta más tarde.';
+                    if (msg.includes('tardó') || msg.includes('demasiado')) return 'La generación tardó demasiado. Intenta con menos páginas o menos tarjetas.';
+                    if (msg.includes('validarse')) return 'La IA devolvió una respuesta que no pudo validarse. Intenta nuevamente.';
+                    if (msg.includes('configurada')) return 'La generación con IA no está configurada. Contacta al administrador.';
+                    return msg || 'No fue posible generar las tarjetas. Intenta de nuevo.';
+                  }
                   return 'Ocurrió un error al iniciar la generación. Intenta de nuevo.';
                 })()}
               </Alert>
             )}
 
-            <Alert severity="info">
-              Se generarán tarjetas a partir del texto extraído de las páginas {pageFrom} a {pageTo}.
-            </Alert>
+            {createRun.isPending ? (
+              <Alert severity="info">
+                Generando tarjetas con IA… Esto puede tardar hasta un minuto. Por favor, no cierres esta ventana.
+              </Alert>
+            ) : (
+              <Alert severity="info">
+                Se generarán tarjetas a partir del texto extraído de las páginas {pageFrom} a {pageTo}.
+              </Alert>
+            )}
 
             <Controller
               name="deckId"

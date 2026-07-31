@@ -1,9 +1,11 @@
 package com.angelica.recallpathbackend.features.generation.dto;
 
 import java.util.List;
+import java.util.Map;
 
 public record FlashcardGenerationContext(
-        String fullText,
+        Long runId,
+        Map<Integer, String> pageTexts,
         int pageFrom,
         int pageTo,
         int requestedCardCount,
