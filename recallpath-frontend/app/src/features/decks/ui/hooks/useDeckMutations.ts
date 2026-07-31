@@ -32,3 +32,14 @@ export function useArchiveDeck() {
     },
   })
 }
+
+export function useUnarchiveDeck() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (id: number) => deckDependencies.unarchiveDeckUseCase.execute(id),
+    onSuccess: (deck) => {
+      queryClient.invalidateQueries({ queryKey: deckQueryKeys.lists() })
+      queryClient.setQueryData(deckQueryKeys.detail(deck.id), deck)
+    },
+  })
+}

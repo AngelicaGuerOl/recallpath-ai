@@ -16,17 +16,17 @@ const theme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: '#1f6f5b',
+      main: '#5B5BD6',
     },
     secondary: {
-      main: '#355c8c',
+      main: '#7B72E6',
     },
     background: {
-      default: '#f5f7fa',
+      default: '#F7F7FC',
     },
   },
   shape: {
-    borderRadius: 8,
+    borderRadius: 16,
   },
   typography: {
     fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',

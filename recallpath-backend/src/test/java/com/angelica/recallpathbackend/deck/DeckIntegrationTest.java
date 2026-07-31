@@ -145,6 +145,18 @@ class DeckIntegrationTest {
     }
 
     @Test
+    void missingArchivedFilterReturnsActiveAndArchivedDecks() throws Exception {
+        deckRepository.save(deck("Active", null));
+        Deck archived = deck("Archived", null);
+        archived.setArchivedAt(LocalDateTime.now());
+        deckRepository.save(archived);
+
+        mockMvc.perform(get("/api/decks"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(2));
+    }
+
+    @Test
     void paginationReturnsMetadata() throws Exception {
         deckRepository.save(deck("Deck 1", null));
         deckRepository.save(deck("Deck 2", null));
@@ -165,6 +177,17 @@ class DeckIntegrationTest {
         mockMvc.perform(patch("/api/decks/{id}/archive", saved.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.archivedAt").exists());
+    }
+
+    @Test
+    void unarchiveDeckClearsArchivedAt() throws Exception {
+        Deck archived = deck("SQL archivado", null);
+        archived.setArchivedAt(LocalDateTime.now());
+        Deck saved = deckRepository.save(archived);
+
+        mockMvc.perform(patch("/api/decks/{id}/unarchive", saved.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.archivedAt").doesNotExist());
     }
 
     private Deck deck(String name, String description) {

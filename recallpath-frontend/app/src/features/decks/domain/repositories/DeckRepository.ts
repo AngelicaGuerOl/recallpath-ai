@@ -6,4 +6,5 @@ export interface DeckRepository {
   createDeck(input: DeckFormInput): Promise<Deck>
   updateDeck(id: number, input: DeckFormInput): Promise<Deck>
   archiveDeck(id: number): Promise<Deck>
+  unarchiveDeck(id: number): Promise<Deck>
 }

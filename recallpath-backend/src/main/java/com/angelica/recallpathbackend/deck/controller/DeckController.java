@@ -61,4 +61,9 @@ public class DeckController {
     public ResponseEntity<DeckResponse> archiveDeck(@PathVariable Long id) {
         return ResponseEntity.ok(deckService.archiveDeck(id));
     }
+
+    @PatchMapping("/{id}/unarchive")
+    public ResponseEntity<DeckResponse> unarchiveDeck(@PathVariable Long id) {
+        return ResponseEntity.ok(deckService.unarchiveDeck(id));
+    }
 }

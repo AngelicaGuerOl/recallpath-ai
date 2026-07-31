@@ -41,13 +41,14 @@ describe('DecksPage', () => {
     expect(screen.getByText('Cargando conjuntos...')).toBeInTheDocument()
   })
 
-  it('shows the empty state', async () => {
+  it('shows the empty state when no decks exist', async () => {
     useDecksSuccess([])
 
     renderDecksPage()
 
-    expect(await screen.findByText('Sin conjuntos')).toBeInTheDocument()
-    expect(screen.getByText('Crea un conjunto o ajusta los filtros de búsqueda.')).toBeInTheDocument()
+    expect(await screen.findByText('Crea tu primer conjunto')).toBeInTheDocument()
+    expect(screen.getByText('Organiza un tema, agrega tarjetas manualmente o genera tarjetas desde un PDF.')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Crear conjunto' })).toBeInTheDocument()
   })
 
   it('shows decks returned by the API', async () => {
@@ -57,7 +58,7 @@ describe('DecksPage', () => {
 
     expect(await screen.findByText('Spring Boot')).toBeInTheDocument()
     expect(screen.getByText('React')).toBeInTheDocument()
-    expect(screen.getByText('2 resultado(s)')).toBeInTheDocument()
+    expect(screen.getByText('2 conjunto(s)')).toBeInTheDocument()
   })
 
   it('shows the error state', async () => {
@@ -66,12 +67,13 @@ describe('DecksPage', () => {
     renderDecksPage()
 
     expect(await screen.findByText('No fue posible cargar los conjuntos.')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Reintentar' })).toBeInTheDocument()
   })
 
   it('opens the creation form', async () => {
     useDecksSuccess([])
     renderDecksPage()
-    await screen.findByText('Sin conjuntos')
+    await screen.findByText('Crea tu primer conjunto')
 
     await openCreateForm()
 
@@ -82,7 +84,7 @@ describe('DecksPage', () => {
   it('validates that name is required', async () => {
     useDecksSuccess([])
     renderDecksPage()
-    await screen.findByText('Sin conjuntos')
+    await screen.findByText('Crea tu primer conjunto')
     const user = await openCreateForm()
 
     await user.click(screen.getByRole('button', { name: 'Guardar' }))
@@ -93,7 +95,7 @@ describe('DecksPage', () => {
   it('validates maximum lengths', async () => {
     useDecksSuccess([])
     renderDecksPage()
-    await screen.findByText('Sin conjuntos')
+    await screen.findByText('Crea tu primer conjunto')
     const user = await openCreateForm()
     fireEvent.change(within(getDialog()).getByLabelText(/Nombre/), { target: { value: 'a'.repeat(121) } })
     fireEvent.change(within(getDialog()).getByLabelText('Descripción'), { target: { value: 'a'.repeat(501) } })
@@ -121,7 +123,7 @@ describe('DecksPage', () => {
     )
 
     renderDecksPage()
-    await screen.findByText('Sin conjuntos')
+    await screen.findByText('Crea tu primer conjunto')
     await user.click(screen.getByRole('button', { name: 'Crear conjunto' }))
     fireEvent.change(within(getDialog()).getByLabelText(/Nombre/), { target: { value: '  Spring Boot  ' } })
     fireEvent.change(within(getDialog()).getByLabelText('Descripción'), { target: { value: '  Conceptos  ' } })
@@ -145,7 +147,7 @@ describe('DecksPage', () => {
     )
 
     renderDecksPage()
-    await screen.findByText('Sin conjuntos')
+    await screen.findByText('Crea tu primer conjunto')
     await user.click(screen.getByRole('button', { name: 'Crear conjunto' }))
     fireEvent.change(within(getDialog()).getByLabelText(/Nombre/), { target: { value: 'Spring Boot' } })
     fireEvent.change(within(getDialog()).getByLabelText('Descripción'), { target: { value: '   ' } })
@@ -214,6 +216,31 @@ describe('DecksPage', () => {
     await waitFor(() => expect(listRequests).toBeGreaterThan(1))
   })
 
+  it('unarchives a deck and refreshes the list', async () => {
+    const user = userEvent.setup()
+    let listRequests = 0
+    let unarchived = false
+
+    server.use(
+      http.get('/api/decks', () => {
+        listRequests += 1
+        return HttpResponse.json(deckPage([archivedDeck]))
+      }),
+      http.patch('/api/decks/3/unarchive', () => {
+        unarchived = true
+        return HttpResponse.json({ ...archivedDeck, archivedAt: null })
+      }),
+    )
+
+    renderDecksPage()
+    await screen.findByText('SQL archivado')
+    await user.click(screen.getByRole('button', { name: 'Desarchivar SQL archivado' }))
+
+    expect(await screen.findByText('Conjunto desarchivado correctamente.')).toBeInTheDocument()
+    expect(unarchived).toBe(true)
+    await waitFor(() => expect(listRequests).toBeGreaterThan(1))
+  })
+
   it('shows backend error messages from mutations', async () => {
     const user = userEvent.setup()
     server.use(
@@ -242,9 +269,8 @@ describe('DecksPage', () => {
 
     renderDecksPage()
     await screen.findByText('SQL archivado')
-    fireEvent.change(screen.getByLabelText('Buscar por nombre'), { target: { value: 'sql' } })
-    fireEvent.mouseDown(screen.getByLabelText('Estado'))
-    await user.click(screen.getByRole('option', { name: 'Archivados' }))
+    fireEvent.change(screen.getByLabelText('Buscar conjuntos'), { target: { value: 'sql' } })
+    await user.click(screen.getByRole('tab', { name: 'Archivados' }))
     await user.click(screen.getByRole('button', { name: 'Go to page 2' }))
 
     await waitFor(() => {

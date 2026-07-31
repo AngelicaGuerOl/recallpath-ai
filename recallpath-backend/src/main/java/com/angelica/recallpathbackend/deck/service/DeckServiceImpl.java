@@ -39,7 +39,7 @@ public class DeckServiceImpl implements DeckService {
         int normalizedSize = Math.min(size, MAX_PAGE_SIZE);
         Page<Deck> result = deckRepository.search(
                 normalizeSearch(search),
-                archived == null ? Boolean.FALSE : archived,
+                archived,
                 PageRequest.of(page, normalizedSize, Sort.by(Sort.Order.desc("updatedAt"), Sort.Order.desc("id")))
         );
         List<DeckResponse> content = result.getContent().stream().map(deckMapper::toResponse).toList();
@@ -77,6 +77,17 @@ public class DeckServiceImpl implements DeckService {
         Deck deck = findDeck(id);
         if (deck.getArchivedAt() == null) {
             deck.setArchivedAt(LocalDateTime.now(clock));
+            deck = deckRepository.save(deck);
+        }
+        return deckMapper.toResponse(deck);
+    }
+
+    @Override
+    @Transactional
+    public DeckResponse unarchiveDeck(Long id) {
+        Deck deck = findDeck(id);
+        if (deck.getArchivedAt() != null) {
+            deck.setArchivedAt(null);
             deck = deckRepository.save(deck);
         }
         return deckMapper.toResponse(deck);

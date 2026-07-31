@@ -34,4 +34,9 @@ export class DeckRepositoryImpl implements DeckRepository {
     const response = await httpClient.patch<DeckDto>(`/decks/${id}/archive`)
     return DeckMapper.toDeck(response)
   }
+
+  async unarchiveDeck(id: number): Promise<Deck> {
+    const response = await httpClient.patch<DeckDto>(`/decks/${id}/unarchive`)
+    return DeckMapper.toDeck(response)
+  }
 }

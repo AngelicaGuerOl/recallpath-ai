@@ -5,6 +5,7 @@
 backups/
 *.dump
 *.sql
+!recallpath-backend/src/main/resources/db/migration/*.sql
 
 **/target/
 **/node_modules/

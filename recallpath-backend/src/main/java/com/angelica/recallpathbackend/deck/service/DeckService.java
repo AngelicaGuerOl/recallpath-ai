@@ -16,4 +16,6 @@ public interface DeckService {
     DeckResponse updateDeck(Long id, UpdateDeckRequest request);
 
     DeckResponse archiveDeck(Long id);
+
+    DeckResponse unarchiveDeck(Long id);
 }
