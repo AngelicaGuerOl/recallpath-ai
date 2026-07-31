@@ -21,6 +21,7 @@ import type { Flashcard, FlashcardFormInput } from '../../domain/entities/Flashc
 import { FlashcardGrid, FlashcardGridSkeleton } from '../components/FlashcardGrid'
 import { FlashcardFormDialog } from '../components/FlashcardFormDialog'
 import { useFlashcards } from '../hooks/useFlashcards'
+import { useStartPracticeSession } from '../../../practice/ui/hooks/usePracticeMutations'
 import {
   useArchiveFlashcard,
   useCreateFlashcard,
@@ -52,6 +53,8 @@ export function DeckDetailPage() {
   const updateFlashcard = useUpdateFlashcard(deckId)
   const archiveFlashcard = useArchiveFlashcard(deckId)
   const restoreFlashcard = useRestoreFlashcard(deckId)
+
+  const startPractice = useStartPracticeSession()
 
   const [dialogMode, setDialogMode] = useState<'create' | 'edit' | null>(null)
   const [selectedCard, setSelectedCard] = useState<Flashcard | null>(null)
@@ -147,6 +150,16 @@ export function DeckDetailPage() {
       ? '1 tarjeta activa'
       : `${activeCount} tarjetas activas`
 
+  async function handlePractice() {
+    try {
+      setMutationError(null)
+      const session = await startPractice.mutateAsync({ deckId })
+      navigate(`/practice/${session.id}`)
+    } catch (error) {
+      setMutationError(getErrorMessage(error))
+    }
+  }
+
   const deckLoading = deckQuery.isLoading
   const deckError = deckQuery.isError
 
@@ -214,7 +227,8 @@ export function DeckDetailPage() {
                   <Button
                     variant="outlined"
                     startIcon={<SchoolOutlinedIcon />}
-                    disabled={!canPractice}
+                    disabled={!canPractice || startPractice.isPending}
+                    onClick={handlePractice}
                     aria-label={canPractice ? 'Practicar' : 'Practicar (requiere tarjetas activas)'}
                   >
                     Practicar

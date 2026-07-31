@@ -11,6 +11,8 @@ public interface FlashcardRepository extends JpaRepository<Flashcard, Long> {
 
     List<Flashcard> findByDeckIdOrderByCreatedAtDescIdDesc(Long deckId);
 
+    List<Flashcard> findByDeckIdAndStatus(Long deckId, com.angelica.recallpathbackend.flashcard.entity.FlashcardStatus status);
+
     Optional<Flashcard> findByIdAndDeckId(Long id, Long deckId);
 
     @Query(value = """

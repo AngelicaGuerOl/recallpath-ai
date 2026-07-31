@@ -14,6 +14,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -51,12 +52,22 @@ public class Flashcard {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    @Column(name = "correct_streak", nullable = false)
+    private Integer correctStreak = 0;
+
+    @Column(name = "next_review_date")
+    private LocalDate nextReviewDate;
+
+    @Column(name = "last_reviewed_at")
+    private LocalDateTime lastReviewedAt;
+
     @PrePersist
     void prePersist() {
         LocalDateTime now = LocalDateTime.now();
         if (createdAt == null) createdAt = now;
         if (updatedAt == null) updatedAt = now;
         if (status == null) status = FlashcardStatus.ACTIVE;
+        if (correctStreak == null) correctStreak = 0;
     }
 
     @PreUpdate
@@ -134,5 +145,29 @@ public class Flashcard {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public Integer getCorrectStreak() {
+        return correctStreak;
+    }
+
+    public void setCorrectStreak(Integer correctStreak) {
+        this.correctStreak = correctStreak;
+    }
+
+    public LocalDate getNextReviewDate() {
+        return nextReviewDate;
+    }
+
+    public void setNextReviewDate(LocalDate nextReviewDate) {
+        this.nextReviewDate = nextReviewDate;
+    }
+
+    public LocalDateTime getLastReviewedAt() {
+        return lastReviewedAt;
+    }
+
+    public void setLastReviewedAt(LocalDateTime lastReviewedAt) {
+        this.lastReviewedAt = lastReviewedAt;
     }
 }

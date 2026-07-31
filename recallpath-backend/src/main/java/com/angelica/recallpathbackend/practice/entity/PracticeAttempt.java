@@ -1,0 +1,48 @@
+package com.angelica.recallpathbackend.practice.entity;
+
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "practice_attempts")
+public class PracticeAttempt {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "session_card_id", nullable = false)
+    private PracticeSessionCard sessionCard;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private PracticeResult result;
+
+    @Column(name = "response_time_ms")
+    private Long responseTimeMs;
+
+    @Column(name = "answered_at", nullable = false)
+    private LocalDateTime answeredAt;
+
+    @PrePersist
+    void prePersist() {
+        if (answeredAt == null) answeredAt = LocalDateTime.now();
+    }
+
+    // Getters and Setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    
+    public PracticeSessionCard getSessionCard() { return sessionCard; }
+    public void setSessionCard(PracticeSessionCard sessionCard) { this.sessionCard = sessionCard; }
+    
+    public PracticeResult getResult() { return result; }
+    public void setResult(PracticeResult result) { this.result = result; }
+    
+    public Long getResponseTimeMs() { return responseTimeMs; }
+    public void setResponseTimeMs(Long responseTimeMs) { this.responseTimeMs = responseTimeMs; }
+    
+    public LocalDateTime getAnsweredAt() { return answeredAt; }
+    public void setAnsweredAt(LocalDateTime answeredAt) { this.answeredAt = answeredAt; }
+}

@@ -5,12 +5,13 @@ type ConfirmDialogProps = {
   title: string
   description: string
   confirmLabel: string
+  cancelLabel?: string
   loading?: boolean
   onClose(): void
   onConfirm(): void
 }
 
-export function ConfirmDialog({ open, title, description, confirmLabel, loading = false, onClose, onConfirm }: ConfirmDialogProps) {
+export function ConfirmDialog({ open, title, description, confirmLabel, cancelLabel = 'Cancelar', loading = false, onClose, onConfirm }: ConfirmDialogProps) {
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
       <DialogTitle>{title}</DialogTitle>
@@ -18,7 +19,7 @@ export function ConfirmDialog({ open, title, description, confirmLabel, loading 
         <DialogContentText>{description}</DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} disabled={loading}>Cancelar</Button>
+        <Button onClick={onClose} disabled={loading}>{cancelLabel}</Button>
         <Button onClick={onConfirm} color="warning" variant="contained" disabled={loading}>
           {confirmLabel}
         </Button>
