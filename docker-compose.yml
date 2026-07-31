@@ -38,6 +38,8 @@ services:
 volumes:
   recallpath_postgres_data:
     name: recallpath_postgres_data
+  recallpath_documents_data:
+    name: recallpath_documents_data
 
 networks:
   recallpath-network:

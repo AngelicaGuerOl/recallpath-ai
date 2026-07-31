@@ -76,7 +76,7 @@ describe('DeckDetailPage', () => {
         'Agrega términos y definiciones manualmente o genéralos más adelante desde un PDF.',
       ),
     ).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Agregar tarjeta' })).toBeInTheDocument()
+    expect(screen.getAllByRole('button', { name: 'Agregar tarjeta' })[0]).toBeInTheDocument()
   })
 
   // 3. Crear tarjeta — botón "Crear tarjeta" en el dialog
@@ -95,7 +95,7 @@ describe('DeckDetailPage', () => {
 
     renderPage()
     await screen.findByText('Crea tu primera tarjeta')
-    await user.click(screen.getByRole('button', { name: 'Agregar tarjeta' }))
+    await user.click(screen.getAllByRole('button', { name: 'Agregar tarjeta' })[0])
 
     const dialog = getDialog()
     // Título del dialog para crear
@@ -124,7 +124,7 @@ describe('DeckDetailPage', () => {
     renderPage()
     await screen.findByText('Crea tu primera tarjeta')
 
-    await user.click(screen.getByRole('button', { name: 'Agregar tarjeta' }))
+    await user.click(screen.getAllByRole('button', { name: 'Agregar tarjeta' })[0])
 
     const dialog = getDialog()
     fireEvent.change(within(dialog).getByLabelText(/Término/), { target: { value: '' } })
@@ -253,7 +253,7 @@ describe('DeckDetailPage', () => {
     ).toBeInTheDocument()
 
     // Botón Agregar tarjeta deshabilitado
-    const addBtn = screen.getByRole('button', { name: 'Agregar tarjeta' })
+    const addBtn = screen.getAllByRole('button', { name: 'Agregar tarjeta' })[0]
     expect(addBtn).toBeDisabled()
 
     // Botón Practicar también deshabilitado (deck archivado)
@@ -348,7 +348,7 @@ describe('DeckDetailPage', () => {
 
     renderPage()
     await screen.findByText('Crea tu primera tarjeta')
-    await user.click(screen.getByRole('button', { name: 'Agregar tarjeta' }))
+    await user.click(screen.getAllByRole('button', { name: 'Agregar tarjeta' })[0])
 
     const dialog = getDialog()
     fireEvent.change(within(dialog).getByLabelText(/Término/), {
@@ -404,7 +404,7 @@ describe('DeckDetailPage', () => {
 
     renderPage()
     await screen.findByText('Crea tu primera tarjeta')
-    await user.click(screen.getByRole('button', { name: 'Agregar tarjeta' }))
+    await user.click(screen.getAllByRole('button', { name: 'Agregar tarjeta' })[0])
 
     const dialog = getDialog()
     fireEvent.change(within(dialog).getByLabelText(/Término/), {
@@ -439,7 +439,7 @@ describe('DeckDetailPage', () => {
 
     renderPage()
     await screen.findByText('Crea tu primera tarjeta')
-    await user.click(screen.getByRole('button', { name: 'Agregar tarjeta' }))
+    await user.click(screen.getAllByRole('button', { name: 'Agregar tarjeta' })[0])
 
     const dialog = getDialog()
     fireEvent.change(within(dialog).getByLabelText(/Término/), {

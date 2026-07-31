@@ -23,6 +23,8 @@ RUN apk add --no-cache curl
 
 COPY --from=build /workspace/target/app.jar app.jar
 
+RUN mkdir -p /app/documents && chown -R spring:spring /app/documents
+
 USER spring:spring
 
 EXPOSE 8080

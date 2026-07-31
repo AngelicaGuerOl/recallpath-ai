@@ -1,5 +1,5 @@
 import { Alert, Box, CircularProgress, Container, Snackbar } from '@mui/material'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { getErrorMessage } from '../../../../shared/api/apiError'
 import { ConfirmDialog } from '../../../../shared/ui/components/ConfirmDialog'
@@ -23,16 +23,19 @@ export function PracticePage() {
   const cancelSession = useCancelPracticeSession(sessionId)
 
   const [isFlipped, setIsFlipped] = useState(false)
-  const [startTime, setStartTime] = useState<number>(() => Date.now())
+  const startTimeRef = useRef<number>(0)
   const [showCancelDialog, setShowCancelDialog] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [prevCardId, setPrevCardId] = useState<number | undefined>(undefined)
 
-  if (session?.currentCard && session.currentCard.id !== prevCardId) {
-    setPrevCardId(session.currentCard.id)
-    setIsFlipped(false)
-    setStartTime(Date.now())
-  }
+  useEffect(() => {
+    if (session?.currentCard && session.currentCard.id !== prevCardId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setPrevCardId(session.currentCard.id)
+      setIsFlipped(false)
+      startTimeRef.current = Date.now()
+    }
+  }, [session?.currentCard, prevCardId])
 
   if (isLoading) {
     return (
@@ -75,7 +78,7 @@ export function PracticePage() {
 
   async function handleResult(result: PracticeResult) {
     if (!currentCard) return
-    const responseTimeMs = Date.now() - startTime
+    const responseTimeMs = Date.now() - startTimeRef.current
 
     try {
       setErrorMessage(null)
