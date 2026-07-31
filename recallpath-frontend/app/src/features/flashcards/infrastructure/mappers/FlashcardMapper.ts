@@ -7,7 +7,11 @@ export type FlashcardDto = {
   definition: string
   category: string | null
   difficulty: 'EASY' | 'MEDIUM' | 'HARD'
-  status: 'ACTIVE' | 'ARCHIVED'
+  status: 'ACTIVE' | 'ARCHIVED' | 'GENERATED' | 'REJECTED'
+  origin: string
+  generationRunId?: number
+  sourcePage?: number
+  sourceExcerpt?: string
   createdAt: string
   updatedAt: string
 }

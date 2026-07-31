@@ -20,9 +20,12 @@ export function DocumentCard({ document, onArchive, onRestore }: DocumentCardPro
     setAnchorEl(event.currentTarget)
   }
 
-  const handleMenuClose = (event?: React.MouseEvent) => {
-    event?.stopPropagation()
-    event?.preventDefault()
+  const handleMenuClose = (event?: {}) => {
+    // If it's a mouse event from MenuItem onClick, event might be React.MouseEvent
+    if (event && 'stopPropagation' in event) {
+      (event as React.SyntheticEvent).stopPropagation();
+      (event as React.SyntheticEvent).preventDefault();
+    }
     setAnchorEl(null)
   }
 

@@ -4,6 +4,7 @@ import com.angelica.recallpathbackend.deck.entity.Deck;
 import com.angelica.recallpathbackend.deck.exception.ArchivedDeckModificationException;
 import com.angelica.recallpathbackend.deck.exception.DeckNotFoundException;
 import com.angelica.recallpathbackend.deck.repository.DeckRepository;
+import com.angelica.recallpathbackend.flashcard.dto.ApproveBatchRequest;
 import com.angelica.recallpathbackend.flashcard.dto.CreateFlashcardRequest;
 import com.angelica.recallpathbackend.flashcard.dto.FlashcardResponse;
 import com.angelica.recallpathbackend.flashcard.dto.UpdateFlashcardRequest;
@@ -38,7 +39,24 @@ public class FlashcardServiceImpl implements FlashcardService {
     @Transactional(readOnly = true)
     public List<FlashcardResponse> findFlashcards(Long deckId) {
         ensureDeckExists(deckId);
-        return flashcardRepository.findByDeckIdOrderByCreatedAtDescIdDesc(deckId).stream()
+        return flashcardRepository.findByDeckIdAndStatusOrderByCreatedAtDescIdDesc(deckId, FlashcardStatus.ACTIVE).stream()
+                .map(flashcardMapper::toResponse)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<FlashcardResponse> findGeneratedFlashcardsByRun(Long runId) {
+        return flashcardRepository.findByGenerationRunIdAndStatusOrderByIdAsc(runId, FlashcardStatus.GENERATED).stream()
+                .map(flashcardMapper::toResponse)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<FlashcardResponse> findFlashcardsByStatus(Long deckId, FlashcardStatus status) {
+        ensureDeckExists(deckId);
+        return flashcardRepository.findByDeckIdAndStatus(deckId, status).stream()
                 .map(flashcardMapper::toResponse)
                 .toList();
     }
@@ -84,6 +102,46 @@ public class FlashcardServiceImpl implements FlashcardService {
         Flashcard flashcard = findFlashcard(deckId, cardId);
         flashcard.setStatus(FlashcardStatus.ACTIVE);
         return flashcardMapper.toResponse(flashcardRepository.save(flashcard));
+    }
+
+    @Override
+    @Transactional
+    public FlashcardResponse approveFlashcard(Long deckId, Long cardId) {
+        findMutableDeck(deckId);
+        Flashcard flashcard = findFlashcard(deckId, cardId);
+        if (flashcard.getStatus() != FlashcardStatus.GENERATED) {
+            throw new IllegalStateException("Solo las tarjetas GENERATED pueden ser aprobadas.");
+        }
+        ensureUniqueTerm(deckId, cardId, flashcard.getTerm());
+        flashcard.setStatus(FlashcardStatus.ACTIVE);
+        return flashcardMapper.toResponse(flashcardRepository.save(flashcard));
+    }
+
+    @Override
+    @Transactional
+    public FlashcardResponse rejectFlashcard(Long deckId, Long cardId) {
+        findMutableDeck(deckId);
+        Flashcard flashcard = findFlashcard(deckId, cardId);
+        if (flashcard.getStatus() != FlashcardStatus.GENERATED) {
+            throw new IllegalStateException("Solo las tarjetas GENERATED pueden ser rechazadas.");
+        }
+        flashcard.setStatus(FlashcardStatus.REJECTED);
+        return flashcardMapper.toResponse(flashcardRepository.save(flashcard));
+    }
+
+    @Override
+    @Transactional
+    public void approveBatch(Long deckId, ApproveBatchRequest request) {
+        findMutableDeck(deckId);
+        for (Long cardId : request.flashcardIds()) {
+            Flashcard flashcard = findFlashcard(deckId, cardId);
+            if (flashcard.getStatus() != FlashcardStatus.GENERATED) {
+                throw new IllegalStateException("Todas las tarjetas del lote deben ser GENERATED.");
+            }
+            ensureUniqueTerm(deckId, cardId, flashcard.getTerm());
+            flashcard.setStatus(FlashcardStatus.ACTIVE);
+            flashcardRepository.save(flashcard);
+        }
     }
 
     private Deck findMutableDeck(Long deckId) {

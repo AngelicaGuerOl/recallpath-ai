@@ -12,6 +12,10 @@ public record FlashcardResponse(
         String category,
         FlashcardDifficulty difficulty,
         FlashcardStatus status,
+        com.angelica.recallpathbackend.flashcard.entity.FlashcardOrigin origin,
+        Long generationRunId,
+        Integer sourcePage,
+        String sourceExcerpt,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {

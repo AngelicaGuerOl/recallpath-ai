@@ -26,5 +26,6 @@ public interface FlashcardMapper {
     void updateEntity(UpdateFlashcardRequest request, @MappingTarget Flashcard flashcard);
 
     @Mapping(target = "deckId", source = "deck.id")
+    @Mapping(target = "generationRunId", source = "generationRun.id")
     FlashcardResponse toResponse(Flashcard flashcard);
 }

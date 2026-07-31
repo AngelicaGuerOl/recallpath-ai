@@ -9,7 +9,9 @@ import org.springframework.data.repository.query.Param;
 
 public interface FlashcardRepository extends JpaRepository<Flashcard, Long> {
 
-    List<Flashcard> findByDeckIdOrderByCreatedAtDescIdDesc(Long deckId);
+    List<Flashcard> findByDeckIdAndStatusOrderByCreatedAtDescIdDesc(Long deckId, com.angelica.recallpathbackend.flashcard.entity.FlashcardStatus status);
+
+    List<Flashcard> findByGenerationRunIdAndStatusOrderByIdAsc(Long generationRunId, com.angelica.recallpathbackend.flashcard.entity.FlashcardStatus status);
 
     List<Flashcard> findByDeckIdAndStatus(Long deckId, com.angelica.recallpathbackend.flashcard.entity.FlashcardStatus status);
 
@@ -21,6 +23,7 @@ public interface FlashcardRepository extends JpaRepository<Flashcard, Long> {
                 from flashcards f
                 where f.deck_id = :deckId
                   and f.id <> :excludedId
+                  and f.status = 'ACTIVE'
                   and lower(regexp_replace(btrim(f.term), '[[:space:]]+', ' ', 'g'))
                       = lower(regexp_replace(btrim(:term), '[[:space:]]+', ' ', 'g'))
             )
@@ -28,6 +31,21 @@ public interface FlashcardRepository extends JpaRepository<Flashcard, Long> {
     boolean existsEquivalentTerm(
             @Param("deckId") Long deckId,
             @Param("excludedId") long excludedId,
+            @Param("term") String term
+    );
+
+    @Query(value = """
+            select exists(
+                select 1
+                from flashcards f
+                where f.deck_id = :deckId
+                  and f.status IN ('ACTIVE', 'GENERATED')
+                  and lower(regexp_replace(btrim(f.term), '[[:space:]]+', ' ', 'g'))
+                      = lower(regexp_replace(btrim(:term), '[[:space:]]+', ' ', 'g'))
+            )
+            """, nativeQuery = true)
+    boolean existsEquivalentTermForStatuses(
+            @Param("deckId") Long deckId,
             @Param("term") String term
     );
 }

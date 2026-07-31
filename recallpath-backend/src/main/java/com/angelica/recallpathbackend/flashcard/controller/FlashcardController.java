@@ -12,6 +12,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+import com.angelica.recallpathbackend.flashcard.dto.ApproveBatchRequest;
+import com.angelica.recallpathbackend.flashcard.entity.FlashcardStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,7 +33,13 @@ public class FlashcardController {
     }
 
     @GetMapping
-    public ResponseEntity<List<FlashcardResponse>> findFlashcards(@PathVariable Long deckId) {
+    public ResponseEntity<List<FlashcardResponse>> findFlashcards(
+            @PathVariable Long deckId,
+            @RequestParam(required = false) FlashcardStatus status
+    ) {
+        if (status != null) {
+            return ResponseEntity.ok(flashcardService.findFlashcardsByStatus(deckId, status));
+        }
         return ResponseEntity.ok(flashcardService.findFlashcards(deckId));
     }
 
@@ -65,5 +74,30 @@ public class FlashcardController {
             @PathVariable Long cardId
     ) {
         return ResponseEntity.ok(flashcardService.restoreFlashcard(deckId, cardId));
+    }
+
+    @PatchMapping("/{cardId}/approve")
+    public ResponseEntity<FlashcardResponse> approveFlashcard(
+            @PathVariable Long deckId,
+            @PathVariable Long cardId
+    ) {
+        return ResponseEntity.ok(flashcardService.approveFlashcard(deckId, cardId));
+    }
+
+    @PatchMapping("/{cardId}/reject")
+    public ResponseEntity<FlashcardResponse> rejectFlashcard(
+            @PathVariable Long deckId,
+            @PathVariable Long cardId
+    ) {
+        return ResponseEntity.ok(flashcardService.rejectFlashcard(deckId, cardId));
+    }
+
+    @PostMapping("/approve-batch")
+    public ResponseEntity<Void> approveBatch(
+            @PathVariable Long deckId,
+            @Valid @RequestBody ApproveBatchRequest request
+    ) {
+        flashcardService.approveBatch(deckId, request);
+        return ResponseEntity.ok().build();
     }
 }

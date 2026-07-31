@@ -178,6 +178,28 @@ class FlashcardIntegrationTest {
     }
 
     @Test
+    void listOnlyActiveFlashcardsByDefault() throws Exception {
+        Deck deck = deckRepository.save(deck("Spring Boot"));
+        
+        Flashcard active = flashcard(deck, "Active", "Def");
+        active.setStatus(FlashcardStatus.ACTIVE);
+        flashcardRepository.save(active);
+        
+        Flashcard generated = flashcard(deck, "Generated", "Def");
+        generated.setStatus(FlashcardStatus.GENERATED);
+        flashcardRepository.save(generated);
+        
+        Flashcard archived = flashcard(deck, "Archived", "Def");
+        archived.setStatus(FlashcardStatus.ARCHIVED);
+        flashcardRepository.save(archived);
+
+        mockMvc.perform(get("/api/decks/{deckId}/flashcards", deck.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].term").value("Active"));
+    }
+
+    @Test
     void missingDeckReturnsNotFound() throws Exception {
         mockMvc.perform(get("/api/decks/{deckId}/flashcards", 99999))
                 .andExpect(status().isNotFound())

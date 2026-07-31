@@ -1,14 +1,13 @@
 import type { FlashcardRepository } from '../../domain/repositories/FlashcardRepository'
-import type { FlashcardStatus } from '../../domain/entities/Flashcard'
 
-export class GetFlashcardsUseCase {
+export class RejectFlashcardUseCase {
   private readonly repository: FlashcardRepository
 
   constructor(repository: FlashcardRepository) {
     this.repository = repository
   }
 
-  execute(deckId: number, status?: FlashcardStatus) {
-    return this.repository.getFlashcards(deckId, status)
+  execute(deckId: number, cardId: number) {
+    return this.repository.rejectFlashcard(deckId, cardId)
   }
 }

@@ -1,5 +1,5 @@
 export type FlashcardDifficulty = 'EASY' | 'MEDIUM' | 'HARD'
-export type FlashcardStatus = 'ACTIVE' | 'ARCHIVED'
+export type FlashcardStatus = 'ACTIVE' | 'ARCHIVED' | 'GENERATED' | 'REJECTED'
 
 export type Flashcard = {
   id: number
@@ -9,6 +9,10 @@ export type Flashcard = {
   category: string | null
   difficulty: FlashcardDifficulty
   status: FlashcardStatus
+  origin: string
+  generationRunId?: number
+  sourcePage?: number
+  sourceExcerpt?: string
   createdAt: string
   updatedAt: string
 }

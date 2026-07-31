@@ -50,3 +50,41 @@ export function useRestoreFlashcard(deckId: number) {
     },
   })
 }
+
+export function useApproveFlashcard(deckId: number) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (cardId: number) =>
+      flashcardDependencies.approveFlashcardUseCase.execute(deckId, cardId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: flashcardQueryKeys.byDeck(deckId) })
+      queryClient.invalidateQueries({ queryKey: deckQueryKeys.detail(deckId) })
+      queryClient.invalidateQueries({ queryKey: ['generationRun'] })
+    },
+  })
+}
+
+export function useRejectFlashcard(deckId: number) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (cardId: number) =>
+      flashcardDependencies.rejectFlashcardUseCase.execute(deckId, cardId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: flashcardQueryKeys.byDeck(deckId) })
+      queryClient.invalidateQueries({ queryKey: ['generationRun'] })
+    },
+  })
+}
+
+export function useApproveBatchFlashcards(deckId: number) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (flashcardIds: number[]) =>
+      flashcardDependencies.approveBatchFlashcardsUseCase.execute(deckId, flashcardIds),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: flashcardQueryKeys.byDeck(deckId) })
+      queryClient.invalidateQueries({ queryKey: deckQueryKeys.detail(deckId) })
+      queryClient.invalidateQueries({ queryKey: ['generationRun'] })
+    },
+  })
+}

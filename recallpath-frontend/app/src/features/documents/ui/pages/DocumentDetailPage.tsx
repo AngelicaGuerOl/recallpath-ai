@@ -5,8 +5,9 @@ import { Alert, Box, Button, CircularProgress, Divider, IconButton, Paper, Stack
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { PageContainer } from '../../../../shared/ui/layout/PageContainer'
-import type { DocumentStatus } from '../domain/entities/Document'
+import type { DocumentStatus } from '../../domain/entities/Document'
 import { useDocument, useDocumentPages } from '../hooks/useDocuments'
+import { GenerateFlashcardsDialog } from '../../../generation/ui/components/GenerateFlashcardsDialog'
 
 const STATUS_LABELS: Record<DocumentStatus, string> = {
   UPLOADED: 'Subido',
@@ -26,6 +27,7 @@ export function DocumentDetailPage() {
   const [fromPage, setFromPage] = useState<number>(1)
   const [toPage, setToPage] = useState<number>(1)
   const [viewPageIndex, setViewPageIndex] = useState<number>(0)
+  const [isGenerateDialogOpen, setIsGenerateDialogOpen] = useState<boolean>(false)
 
   const pagesQuery = useDocumentPages(id, fromPage, toPage)
   const pages = pagesQuery.data?.pages ?? []
@@ -217,16 +219,27 @@ export function DocumentDetailPage() {
             </Box>
 
             <Box sx={{ mt: 2, pt: 2, borderTop: 1, borderColor: 'divider' }}>
-              <Button variant="contained" disabled fullWidth>
+              <Button 
+                variant="contained" 
+                fullWidth
+                onClick={() => setIsGenerateDialogOpen(true)}
+              >
                 Generar tarjetas
               </Button>
-              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1, textAlign: 'center' }}>
-                La generación automática se implementará en la siguiente etapa.
-              </Typography>
             </Box>
           </Paper>
         )}
       </Stack>
+
+      {isGenerateDialogOpen && (
+        <GenerateFlashcardsDialog
+          open={isGenerateDialogOpen}
+          onClose={() => setIsGenerateDialogOpen(false)}
+          documentId={id}
+          pageFrom={fromPage}
+          pageTo={toPage}
+        />
+      )}
     </PageContainer>
   )
 }

@@ -94,7 +94,9 @@ export function PracticePage() {
   async function handleCancelConfirm() {
     try {
       await cancelSession.mutateAsync()
-      navigate(`/decks/${session.deckId}`)
+      if (session?.deckId) {
+        navigate(`/decks/${session.deckId}`)
+      }
     } catch (error) {
       setErrorMessage(getErrorMessage(error))
       setShowCancelDialog(false)

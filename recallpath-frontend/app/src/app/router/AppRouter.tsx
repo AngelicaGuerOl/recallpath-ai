@@ -4,6 +4,7 @@ import { DeckDetailPage } from '../../features/flashcards'
 import { PracticePage } from '../../features/practice/ui/pages/PracticePage'
 import { DocumentsPage } from '../../features/documents/ui/pages/DocumentsPage'
 import { DocumentDetailPage } from '../../features/documents/ui/pages/DocumentDetailPage'
+import { ReviewGenerationPage } from '../../features/generation/ui/pages/ReviewGenerationPage'
 import { MainLayout } from '../../shared/ui/layout/MainLayout'
 
 export function AppRouter() {
@@ -15,6 +16,7 @@ export function AppRouter() {
       <Route path="/documents" element={<MainLayout><DocumentsPage /></MainLayout>} />
       <Route path="/documents/:documentId" element={<MainLayout><DocumentDetailPage /></MainLayout>} />
       <Route path="/practice/:sessionId" element={<PracticePage />} />
+      <Route path="/generation-runs/:runId/review" element={<MainLayout><ReviewGenerationPage /></MainLayout>} />
       <Route path="*" element={<Navigate to="/decks" replace />} />
     </Routes>
   )

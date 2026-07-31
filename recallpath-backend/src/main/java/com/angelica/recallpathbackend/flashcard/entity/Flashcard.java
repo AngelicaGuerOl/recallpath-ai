@@ -1,6 +1,7 @@
 package com.angelica.recallpathbackend.flashcard.entity;
 
 import com.angelica.recallpathbackend.deck.entity.Deck;
+import com.angelica.recallpathbackend.features.generation.entity.GenerationRun;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -61,6 +62,20 @@ public class Flashcard {
     @Column(name = "last_reviewed_at")
     private LocalDateTime lastReviewedAt;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private FlashcardOrigin origin;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "generation_run_id")
+    private GenerationRun generationRun;
+
+    @Column(name = "source_page")
+    private Integer sourcePage;
+
+    @Column(name = "source_excerpt", columnDefinition = "TEXT")
+    private String sourceExcerpt;
+
     @PrePersist
     void prePersist() {
         LocalDateTime now = LocalDateTime.now();
@@ -68,6 +83,7 @@ public class Flashcard {
         if (updatedAt == null) updatedAt = now;
         if (status == null) status = FlashcardStatus.ACTIVE;
         if (correctStreak == null) correctStreak = 0;
+        if (origin == null) origin = FlashcardOrigin.MANUAL;
     }
 
     @PreUpdate
@@ -169,5 +185,37 @@ public class Flashcard {
 
     public void setLastReviewedAt(LocalDateTime lastReviewedAt) {
         this.lastReviewedAt = lastReviewedAt;
+    }
+
+    public FlashcardOrigin getOrigin() {
+        return origin;
+    }
+
+    public void setOrigin(FlashcardOrigin origin) {
+        this.origin = origin;
+    }
+
+    public GenerationRun getGenerationRun() {
+        return generationRun;
+    }
+
+    public void setGenerationRun(GenerationRun generationRun) {
+        this.generationRun = generationRun;
+    }
+
+    public Integer getSourcePage() {
+        return sourcePage;
+    }
+
+    public void setSourcePage(Integer sourcePage) {
+        this.sourcePage = sourcePage;
+    }
+
+    public String getSourceExcerpt() {
+        return sourceExcerpt;
+    }
+
+    public void setSourceExcerpt(String sourceExcerpt) {
+        this.sourceExcerpt = sourceExcerpt;
     }
 }
