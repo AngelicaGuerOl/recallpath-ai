@@ -1,4 +1,5 @@
 import type { Deck, DeckPage } from '../features/decks/domain/entities/Deck'
+import type { Flashcard } from '../features/flashcards/domain/entities/Flashcard'
 
 export const activeDeck: Deck = {
   id: 1,
@@ -38,4 +39,32 @@ export function deckPage(content: Deck[], overrides: Partial<DeckPage> = {}): De
     last: true,
     ...overrides,
   }
+}
+
+export const activeFlashcard: Flashcard = {
+  id: 10,
+  deckId: 1,
+  term: 'IoC Container',
+  definition: 'Gestiona la creación y ciclo de vida de los beans en Spring.',
+  category: 'Core',
+  difficulty: 'MEDIUM',
+  status: 'ACTIVE',
+  createdAt: '2026-07-29T11:00:00',
+  updatedAt: '2026-07-29T11:00:00',
+}
+
+export const archivedFlashcard: Flashcard = {
+  id: 11,
+  deckId: 1,
+  term: 'AOP',
+  definition: 'Programación orientada a aspectos.',
+  category: null,
+  difficulty: 'HARD',
+  status: 'ARCHIVED',
+  createdAt: '2026-07-28T10:00:00',
+  updatedAt: '2026-07-29T10:00:00',
+}
+
+export function flashcardList(cards: Flashcard[] = [activeFlashcard]): Flashcard[] {
+  return cards
 }

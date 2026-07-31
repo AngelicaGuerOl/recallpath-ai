@@ -1,6 +1,7 @@
 package com.angelica.recallpathbackend.shared.exception;
 
 import com.angelica.recallpathbackend.deck.exception.ArchivedDeckModificationException;
+import com.angelica.recallpathbackend.flashcard.exception.DuplicateFlashcardTermException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import java.time.OffsetDateTime;
@@ -38,9 +39,9 @@ public class GlobalExceptionHandler {
         return error(HttpStatus.BAD_REQUEST, "Validation failed", request, errors);
     }
 
-    @ExceptionHandler({ArchivedDeckModificationException.class, DataIntegrityViolationException.class})
+    @ExceptionHandler({ArchivedDeckModificationException.class, DuplicateFlashcardTermException.class, DataIntegrityViolationException.class})
     ResponseEntity<ApiErrorResponse> conflict(Exception ex, HttpServletRequest request) {
-        String message = ex instanceof ArchivedDeckModificationException ? ex.getMessage() : "The request conflicts with existing deck data";
+        String message = ex instanceof DataIntegrityViolationException ? "The request conflicts with existing data" : ex.getMessage();
         return error(HttpStatus.CONFLICT, message, request, null);
     }
 

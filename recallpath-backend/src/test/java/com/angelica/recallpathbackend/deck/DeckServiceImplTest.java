@@ -185,7 +185,7 @@ class DeckServiceImplTest {
 
         deckService.findDecks(0, 20, "  spring  ", null);
 
-        verify(deckRepository).search(eq("spring"), eq(Boolean.FALSE), any(Pageable.class));
+        verify(deckRepository).search(eq("spring"), eq(null), any(Pageable.class));
     }
 
     @Test

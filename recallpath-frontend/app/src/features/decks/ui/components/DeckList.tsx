@@ -3,6 +3,7 @@ import AutoStoriesOutlinedIcon from '@mui/icons-material/AutoStoriesOutlined'
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined'
 import UnarchiveOutlinedIcon from '@mui/icons-material/UnarchiveOutlined'
 import { Box, Button, Chip, IconButton, Paper, Stack, Tooltip, Typography } from '@mui/material'
+import { useNavigate } from 'react-router-dom'
 import type { Deck } from '../../domain/entities/Deck'
 
 type DeckListProps = {
@@ -15,6 +16,7 @@ type DeckListProps = {
 const accentColors = ['#5B5BD6', '#8D7CF1', '#7B5FEB', '#6354D0', '#A59BF5']
 
 export function DeckList({ decks, onEdit, onArchive, onUnarchive }: DeckListProps) {
+  const navigate = useNavigate()
   return (
     <Box
       component="section"
@@ -88,12 +90,20 @@ export function DeckList({ decks, onEdit, onArchive, onUnarchive }: DeckListProp
 
             <Stack direction="row" spacing={1} sx={{ justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
               {!deck.archivedAt ? (
-                <Button size="small" variant="contained" onClick={() => onEdit(deck)}>
+                <Button
+                  size="small"
+                  variant="contained"
+                  onClick={() => navigate(`/decks/${deck.id}`)}
+                >
                   Continuar
                 </Button>
               ) : (
-                <Button size="small" variant="outlined" disabled>
-                  Archivado
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onClick={() => navigate(`/decks/${deck.id}`)}
+                >
+                  Ver
                 </Button>
               )}
               <Stack direction="row" spacing={0.5}>
