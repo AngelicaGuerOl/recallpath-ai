@@ -7,7 +7,7 @@ import { useStartPracticeSession } from '../hooks/usePracticeMutations'
 import { useState } from 'react'
 import { getErrorMessage } from '../../../../shared/api/apiError'
 
-type PracticeSummaryProps = {
+type MultipleChoiceSummaryProps = {
   sessionId: number
   deckId: number
 }
@@ -18,7 +18,7 @@ function getFeedbackMessage(accuracy: number) {
   return 'Este intento te ayudó a identificar qué conceptos debes reforzar.'
 }
 
-export function PracticeSummary({ sessionId, deckId }: PracticeSummaryProps) {
+export function MultipleChoiceSummary({ sessionId, deckId }: MultipleChoiceSummaryProps) {
   const navigate = useNavigate()
   const { data: summary, isLoading, isError } = usePracticeSummary(sessionId, true)
   const startPractice = useStartPracticeSession()
@@ -46,17 +46,13 @@ export function PracticeSummary({ sessionId, deckId }: PracticeSummaryProps) {
   const accuracy = summary.accuracyPercentage
   const feedbackMsg = getFeedbackMessage(accuracy)
 
-  // In traditional mode, "Otra vez" and "Difícil" are considered "incorrect" in the backend stats
-  // and they are added to incorrectCards.
-  const cardsToRetryCount = summary.incorrectCount + summary.difficultCount
-
-  async function handleRetryWeak() {
+  async function handleRetryIncorrect() {
     try {
       setRetryError(null)
       const session = await startPractice.mutateAsync({
         deckId,
-        mode: 'FLASHCARDS',
-        incorrectOnly: true, // El backend deberá tratar incorrectOnly como "Otra vez" o "Difícil" para flashcards
+        mode: 'MULTIPLE_CHOICE',
+        incorrectOnly: true,
         sourceSessionId: sessionId,
       })
       navigate(`/practice/${session.id}`)
@@ -70,7 +66,7 @@ export function PracticeSummary({ sessionId, deckId }: PracticeSummaryProps) {
       setRetryError(null)
       const session = await startPractice.mutateAsync({
         deckId,
-        mode: 'FLASHCARDS',
+        mode: 'MULTIPLE_CHOICE',
       })
       navigate(`/practice/${session.id}`)
     } catch (error) {
@@ -98,14 +94,14 @@ export function PracticeSummary({ sessionId, deckId }: PracticeSummaryProps) {
         }}
       >
         <Typography variant="h3" sx={{ fontWeight: 800, mb: 1, color: 'primary.main' }}>
-          {summary.totalCards} revisadas
+          {summary.correctCount} de {summary.totalCards} correctas
         </Typography>
         <Typography variant="h6" sx={{ opacity: 0.9, mb: 1 }}>
-          {accuracy}% de precisión general
+          {accuracy}% de precisión
         </Typography>
-        {cardsToRetryCount > 0 && (
+        {summary.incorrectCount > 0 && (
           <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-            Hay {cardsToRetryCount} {cardsToRetryCount === 1 ? 'concepto que necesita' : 'conceptos que necesitan'} repaso.
+            Hay {summary.incorrectCount} {summary.incorrectCount === 1 ? 'concepto que necesita' : 'conceptos que necesitan'} repaso.
           </Typography>
         )}
         <Typography variant="subtitle1" sx={{ fontWeight: 600, color: 'text.primary' }}>
@@ -119,12 +115,10 @@ export function PracticeSummary({ sessionId, deckId }: PracticeSummaryProps) {
         sx={{ p: 3, borderRadius: '20px', mb: 4, border: 1, borderColor: 'divider' }}
       >
         <Stack spacing={1.5}>
-          <StatRow label="Fácil" value={summary.easyCount} color="primary.main" />
-          <StatRow label="Bien" value={summary.correctCount} color="success.main" />
-          <StatRow label="Difícil" value={summary.difficultCount} color="warning.main" />
-          <StatRow label="Otra vez" value={summary.incorrectCount} color="error.main" />
+          <StatRow label="Correctas" value={summary.correctCount} color="success.main" />
+          <StatRow label="Incorrectas" value={summary.incorrectCount} color="error.main" />
           <Divider />
-          <StatRow label="Total revisado" value={summary.totalCards} />
+          <StatRow label="Total" value={summary.totalCards} />
         </Stack>
       </Paper>
 
@@ -132,7 +126,7 @@ export function PracticeSummary({ sessionId, deckId }: PracticeSummaryProps) {
       {summary.incorrectCards.length > 0 && (
         <Box sx={{ mb: 4 }}>
           <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
-            Conceptos por repasar
+            Errores para repasar
           </Typography>
           <Stack spacing={2}>
             {summary.incorrectCards.map((card, i) => (
@@ -153,9 +147,24 @@ export function PracticeSummary({ sessionId, deckId }: PracticeSummaryProps) {
                   </Typography>
                 </AccordionSummary>
                 <AccordionDetails sx={{ bgcolor: 'grey.50', borderTop: 1, borderColor: 'divider' }}>
-                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                    {card.definition}
-                  </Typography>
+                  {card.userAnswer && (
+                    <Box sx={{ mb: 2 }}>
+                      <Typography variant="caption" color="error.main" sx={{ fontWeight: 'bold', textTransform: 'uppercase' }}>
+                        Tu respuesta
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: 'error.dark', textDecoration: 'line-through' }}>
+                        {card.userAnswer}
+                      </Typography>
+                    </Box>
+                  )}
+                  <Box>
+                    <Typography variant="caption" color="success.main" sx={{ fontWeight: 'bold', textTransform: 'uppercase' }}>
+                      Respuesta correcta
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: 'success.dark', fontWeight: 500 }}>
+                      {card.definition}
+                    </Typography>
+                  </Box>
                 </AccordionDetails>
               </Accordion>
             ))}
@@ -172,22 +181,22 @@ export function PracticeSummary({ sessionId, deckId }: PracticeSummaryProps) {
 
       {/* Acciones */}
       <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ justifyContent: 'center', mb: 6 }}>
-        {cardsToRetryCount > 0 && (
+        {summary.incorrectCards.length > 0 && (
           <Button
             id="retry-incorrect-button"
             variant="contained"
             size="large"
             startIcon={<ReplayIcon />}
             disabled={startPractice.isPending}
-            onClick={handleRetryWeak}
+            onClick={handleRetryIncorrect}
             sx={{ borderRadius: '12px', px: 3, py: 1.5 }}
           >
-            {startPractice.isPending ? 'Iniciando…' : `Repasar ${cardsToRetryCount} tarjetas débiles`}
+            {startPractice.isPending ? 'Iniciando…' : `Repasar ${summary.incorrectCards.length} errores`}
           </Button>
         )}
         
         <Button
-          variant={cardsToRetryCount > 0 ? "outlined" : "contained"}
+          variant={summary.incorrectCards.length > 0 ? "outlined" : "contained"}
           size="large"
           disabled={startPractice.isPending}
           onClick={handleRetryAll}

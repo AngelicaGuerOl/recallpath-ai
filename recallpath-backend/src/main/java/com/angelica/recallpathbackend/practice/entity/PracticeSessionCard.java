@@ -35,6 +35,9 @@ public class PracticeSessionCard {
     @Column(name = "difficulty_snapshot", nullable = false, length = 20)
     private String difficultySnapshot;
 
+    @Column(name = "options_snapshot", columnDefinition = "TEXT")
+    private String optionsSnapshot;
+
     @Column(nullable = false)
     private Boolean answered = false;
 
@@ -81,6 +84,9 @@ public class PracticeSessionCard {
     
     public String getDifficultySnapshot() { return difficultySnapshot; }
     public void setDifficultySnapshot(String difficultySnapshot) { this.difficultySnapshot = difficultySnapshot; }
+
+    public String getOptionsSnapshot() { return optionsSnapshot; }
+    public void setOptionsSnapshot(String optionsSnapshot) { this.optionsSnapshot = optionsSnapshot; }
     
     public Boolean getAnswered() { return answered; }
     public void setAnswered(Boolean answered) { this.answered = answered; }

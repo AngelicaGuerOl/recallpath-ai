@@ -256,8 +256,8 @@ describe('DeckDetailPage', () => {
     const addBtn = screen.getAllByRole('button', { name: 'Agregar tarjeta' })[0]
     expect(addBtn).toBeDisabled()
 
-    // Botón Practicar también deshabilitado (deck archivado)
-    const practiceBtn = screen.getByRole('button', { name: /Practicar/i })
+    // Botón Iniciar práctica también deshabilitado (deck archivado)
+    const practiceBtn = screen.getByRole('button', { name: /Iniciar práctica/i })
     expect(practiceBtn).toBeDisabled()
   })
 
@@ -282,7 +282,7 @@ describe('DeckDetailPage', () => {
 
     await screen.findByText('Crea tu primera tarjeta')
 
-    const practiceBtn = screen.getByRole('button', { name: /Practicar/i })
+    const practiceBtn = screen.getByRole('button', { name: /Iniciar práctica/i })
     expect(practiceBtn).toBeDisabled()
   })
 
@@ -293,7 +293,7 @@ describe('DeckDetailPage', () => {
 
     await screen.findByText(activeFlashcard.term)
 
-    const practiceBtn = screen.getByRole('button', { name: /Practicar/i })
+    const practiceBtn = screen.getByRole('button', { name: /Iniciar práctica/i })
     expect(practiceBtn).not.toBeDisabled()
   })
 
@@ -304,7 +304,7 @@ describe('DeckDetailPage', () => {
 
     await screen.findByText(archivedFlashcard.term)
 
-    const practiceBtn = screen.getByRole('button', { name: /Practicar/i })
+    const practiceBtn = screen.getByRole('button', { name: /Iniciar práctica/i })
     expect(practiceBtn).toBeDisabled()
   })
 
@@ -328,7 +328,7 @@ describe('DeckDetailPage', () => {
 
     expect(await screen.findByText(activeFlashcard.term)).toBeInTheDocument()
     expect(screen.getByText(activeFlashcard.definition)).toBeInTheDocument()
-    expect(screen.getByText('Core')).toBeInTheDocument()       // categoría
+    expect(screen.getByText('Biology')).toBeInTheDocument()       // categoría
     expect(screen.getByText('Intermedia')).toBeInTheDocument() // MEDIUM → Intermedia
   })
 

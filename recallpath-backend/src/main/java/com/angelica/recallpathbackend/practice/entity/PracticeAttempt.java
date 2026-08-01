@@ -22,6 +22,9 @@ public class PracticeAttempt {
     @Column(name = "response_time_ms")
     private Long responseTimeMs;
 
+    @Column(name = "user_answer", columnDefinition = "TEXT")
+    private String userAnswer;
+
     @Column(name = "answered_at", nullable = false)
     private LocalDateTime answeredAt;
 
@@ -42,6 +45,9 @@ public class PracticeAttempt {
     
     public Long getResponseTimeMs() { return responseTimeMs; }
     public void setResponseTimeMs(Long responseTimeMs) { this.responseTimeMs = responseTimeMs; }
+    
+    public String getUserAnswer() { return userAnswer; }
+    public void setUserAnswer(String userAnswer) { this.userAnswer = userAnswer; }
     
     public LocalDateTime getAnsweredAt() { return answeredAt; }
     public void setAnsweredAt(LocalDateTime answeredAt) { this.answeredAt = answeredAt; }

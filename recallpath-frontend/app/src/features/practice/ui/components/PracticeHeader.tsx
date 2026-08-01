@@ -12,10 +12,13 @@ type PracticeHeaderProps = {
   totalCards: number
   completedCards: number
   onCancel(): void
+  mode?: 'FLASHCARDS' | 'MULTIPLE_CHOICE'
 }
 
-export function PracticeHeader({ deckName, currentPosition, totalCards, completedCards, onCancel }: PracticeHeaderProps) {
+export function PracticeHeader({ deckName, currentPosition, totalCards, completedCards, onCancel, mode = 'FLASHCARDS' }: PracticeHeaderProps) {
   const progress = totalCards > 0 ? (completedCards / totalCards) * 100 : 0
+  const isMultipleChoice = mode === 'MULTIPLE_CHOICE'
+  const itemName = isMultipleChoice ? 'Pregunta' : 'Tarjeta'
 
   return (
     <Box sx={{ borderBottom: 1, borderColor: 'divider', pb: 2, pt: 2, px: { xs: 2, md: 4 } }}>
@@ -33,12 +36,17 @@ export function PracticeHeader({ deckName, currentPosition, totalCards, complete
           {deckName}
         </Typography>
 
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1, alignItems: 'flex-end' }}>
+          <Box>
+            <Typography variant="caption" sx={{ display: 'block', color: 'primary.main', fontWeight: 'bold', mb: 0.5 }}>
+              {isMultipleChoice ? 'OPCIÓN MÚLTIPLE' : 'TARJETAS'}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 'medium' }}>
+              {itemName} {currentPosition} de {totalCards}
+            </Typography>
+          </Box>
           <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 'medium' }}>
-            Tarjeta {currentPosition} de {totalCards}
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 'medium' }}>
-            {completedCards} de {totalCards} completadas
+            {completedCards} respondidas
           </Typography>
         </Box>
 
@@ -46,6 +54,10 @@ export function PracticeHeader({ deckName, currentPosition, totalCards, complete
           variant="determinate" 
           value={progress} 
           sx={{ borderRadius: 1, height: 6 }} 
+          aria-valuenow={progress}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label="Progreso de la sesión"
         />
       </Box>
     </Box>

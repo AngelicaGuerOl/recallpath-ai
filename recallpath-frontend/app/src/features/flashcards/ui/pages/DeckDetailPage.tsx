@@ -1,6 +1,7 @@
 import AddIcon from '@mui/icons-material/Add'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import SchoolOutlinedIcon from '@mui/icons-material/SchoolOutlined'
+import QuizOutlinedIcon from '@mui/icons-material/QuizOutlined'
 import {
   Alert,
   Box,
@@ -21,6 +22,7 @@ import type { Flashcard, FlashcardFormInput } from '../../domain/entities/Flashc
 import { FlashcardGrid, FlashcardGridSkeleton } from '../components/FlashcardGrid'
 import { FlashcardFormDialog } from '../components/FlashcardFormDialog'
 import { useFlashcards } from '../hooks/useFlashcards'
+import { PracticeModeSelectorDialog } from '../../../practice/ui/components/PracticeModeSelectorDialog'
 import { useStartPracticeSession } from '../../../practice/ui/hooks/usePracticeMutations'
 import {
   useArchiveFlashcard,
@@ -31,14 +33,10 @@ import {
 
 /**
  * Mínimo de tarjetas activas requerido por modo de práctica.
- * Solo Flashcards está implementado; los demás son referencia futura.
  */
 const PRACTICE_MIN = {
   flashcards: 1,
-  // escrita: 1,
-  // opcionMultiple: 4,
-  // relacionar: 4,
-  // memoria: 4,
+  opcionMultiple: 4,
 } as const
 
 export function DeckDetailPage() {
@@ -62,6 +60,7 @@ export function DeckDetailPage() {
   const [mutationError, setMutationError] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [snackbarOpen, setSnackbarOpen] = useState(false)
+  const [practiceDialogOpen, setPracticeDialogOpen] = useState(false)
 
   const deck = deckQuery.data
   const cards = flashcardsQuery.data ?? []
@@ -72,6 +71,7 @@ export function DeckDetailPage() {
 
   // Practicar: habilitado cuando hay al menos 1 tarjeta activa y el deck no está archivado
   const canPractice = !isArchived && activeCount >= PRACTICE_MIN.flashcards
+  const canPracticeMultipleChoice = !isArchived && activeCount >= PRACTICE_MIN.opcionMultiple
 
   const mutationPending =
     createFlashcard.isPending ||
@@ -150,10 +150,10 @@ export function DeckDetailPage() {
       ? '1 tarjeta activa'
       : `${activeCount} tarjetas activas`
 
-  async function handlePractice() {
+  async function handlePractice(mode: 'FLASHCARDS' | 'MULTIPLE_CHOICE') {
     try {
       setMutationError(null)
-      const session = await startPractice.mutateAsync({ deckId })
+      const session = await startPractice.mutateAsync({ deckId, mode })
       navigate(`/practice/${session.id}`)
     } catch (error) {
       setMutationError(getErrorMessage(error))
@@ -225,18 +225,18 @@ export function DeckDetailPage() {
               >
                 <span>
                   <Button
-                    variant="outlined"
+                    variant="contained"
                     startIcon={<SchoolOutlinedIcon />}
                     disabled={!canPractice || startPractice.isPending}
-                    onClick={handlePractice}
-                    aria-label={canPractice ? 'Practicar' : 'Practicar (requiere tarjetas activas)'}
+                    onClick={() => setPracticeDialogOpen(true)}
+                    aria-label={canPractice ? 'Iniciar práctica' : 'Iniciar práctica (requiere tarjetas activas)'}
                   >
-                    Practicar
+                    Iniciar práctica
                   </Button>
                 </span>
               </Tooltip>
               <Button
-                variant="contained"
+                variant="outlined"
                 startIcon={<AddIcon />}
                 onClick={openCreateDialog}
                 disabled={isArchived}
@@ -330,6 +330,14 @@ export function DeckDetailPage() {
         loading={archiveFlashcard.isPending}
         onClose={() => setCardToArchive(null)}
         onConfirm={confirmArchive}
+      />
+
+      <PracticeModeSelectorDialog
+        open={practiceDialogOpen}
+        activeCardsCount={activeCount}
+        onClose={() => setPracticeDialogOpen(false)}
+        onSelect={handlePractice}
+        disabled={startPractice.isPending}
       />
 
       {/* Snackbar */}

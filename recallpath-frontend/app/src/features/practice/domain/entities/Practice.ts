@@ -1,8 +1,14 @@
-export type PracticeMode = 'FLASHCARDS'
+export type PracticeMode = 'FLASHCARDS' | 'MULTIPLE_CHOICE'
 
 export type PracticeStatus = 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED'
 
 export type PracticeResult = 'INCORRECT' | 'DIFFICULT' | 'CORRECT' | 'EASY'
+
+/** Una opción en una pregunta de opción múltiple. */
+export type MultipleChoiceOption = {
+  text: string
+  correct: boolean
+}
 
 export type PracticeSessionCard = {
   id: number
@@ -12,6 +18,8 @@ export type PracticeSessionCard = {
   categorySnapshot: string | null
   difficultySnapshot: string
   answered: boolean
+  /** Solo presente en sesiones con mode === 'MULTIPLE_CHOICE'. */
+  options: MultipleChoiceOption[] | null
 }
 
 export type PracticeSession = {
@@ -26,6 +34,13 @@ export type PracticeSession = {
   completedAt: string | null
 }
 
+/** Resumen de una tarjeta incorrecta, incluida en el resumen de sesión. */
+export type IncorrectCardSummary = {
+  term: string
+  definition: string
+  userAnswer?: string
+}
+
 export type PracticeSummary = {
   totalCards: number
   incorrectCount: number
@@ -35,9 +50,11 @@ export type PracticeSummary = {
   accuracyPercentage: number
   startedAt: string
   completedAt: string | null
+  incorrectCards: IncorrectCardSummary[]
 }
 
 export type PracticeAttemptInput = {
   result: PracticeResult
   responseTimeMs: number
+  userAnswer?: string
 }

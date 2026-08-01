@@ -18,11 +18,23 @@ public class PracticeController {
         this.practiceService = practiceService;
     }
 
+    /**
+     * Inicia o reanuda una sesión de práctica.
+     *
+     * @param deckId          ID del deck.
+     * @param mode            Modo de práctica (FLASHCARDS, MULTIPLE_CHOICE).
+     * @param incorrectOnly   Si {@code true}, solo incluye las tarjetas respondidas
+     *                        incorrectamente en la sesión indicada por {@code sourceSessionId}.
+     * @param sourceSessionId Sesión de práctica previa (requerido con {@code incorrectOnly=true}).
+     */
     @PostMapping("/decks/{deckId}/practice-sessions")
     public ResponseEntity<PracticeSessionResponse> startOrResumeSession(
             @PathVariable Long deckId,
-            @RequestParam(defaultValue = "FLASHCARDS") PracticeMode mode) {
-        PracticeSessionResponse response = practiceService.startOrResumeSession(deckId, mode);
+            @RequestParam(defaultValue = "FLASHCARDS") PracticeMode mode,
+            @RequestParam(required = false) Boolean incorrectOnly,
+            @RequestParam(required = false) Long sourceSessionId) {
+        PracticeSessionResponse response = practiceService.startOrResumeSession(
+                deckId, mode, incorrectOnly, sourceSessionId);
         return ResponseEntity.ok(response);
     }
 

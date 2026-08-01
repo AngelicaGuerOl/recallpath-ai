@@ -2,6 +2,8 @@ package com.angelica.recallpathbackend.shared.exception;
 
 import com.angelica.recallpathbackend.deck.exception.ArchivedDeckModificationException;
 import com.angelica.recallpathbackend.flashcard.exception.DuplicateFlashcardTermException;
+import com.angelica.recallpathbackend.practice.exception.InsufficientCardsForModeException;
+import com.angelica.recallpathbackend.practice.exception.InvalidPracticeStateException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import java.time.OffsetDateTime;
@@ -43,6 +45,11 @@ public class GlobalExceptionHandler {
     ResponseEntity<ApiErrorResponse> conflict(Exception ex, HttpServletRequest request) {
         String message = ex instanceof DataIntegrityViolationException ? "The request conflicts with existing data" : ex.getMessage();
         return error(HttpStatus.CONFLICT, message, request, null);
+    }
+
+    @ExceptionHandler({InvalidPracticeStateException.class, InsufficientCardsForModeException.class})
+    ResponseEntity<ApiErrorResponse> practiceConflict(RuntimeException ex, HttpServletRequest request) {
+        return error(HttpStatus.CONFLICT, ex.getMessage(), request, null);
     }
 
     private ResponseEntity<ApiErrorResponse> error(

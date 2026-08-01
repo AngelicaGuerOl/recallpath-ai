@@ -1,16 +1,18 @@
-import { Alert, Box, CircularProgress, Container, Snackbar } from '@mui/material'
+import { Alert, Box, Button, CircularProgress, Container, Snackbar } from '@mui/material'
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { getErrorMessage } from '../../../../shared/api/apiError'
 import { ConfirmDialog } from '../../../../shared/ui/components/ConfirmDialog'
-import type { PracticeResult } from '../../domain/entities/Practice'
+import { useDeck } from '../../../decks/ui/hooks/useDeck'
 import { PracticeCard } from '../components/PracticeCard'
 import { PracticeControls } from '../components/PracticeControls'
 import { PracticeHeader } from '../components/PracticeHeader'
 import { PracticeSummary } from '../components/PracticeSummary'
+import { MultipleChoiceCard } from '../components/MultipleChoiceCard'
+import { MultipleChoiceSummary } from '../components/MultipleChoiceSummary'
 import { useCancelPracticeSession, useSubmitPracticeResult } from '../hooks/usePracticeMutations'
 import { usePracticeSession } from '../hooks/usePractice'
-import { useDeck } from '../../../decks/ui/hooks/useDeck'
+import type { PracticeResult } from '../../domain/entities/Practice'
 
 export function PracticePage() {
   const { sessionId: sessionIdParam } = useParams<{ sessionId: string }>()
@@ -48,35 +50,50 @@ export function PracticePage() {
   if (isError || !session) {
     return (
       <Box sx={{ p: 4 }}>
-        <Alert severity="error" action={<Button color="inherit" size="small" onClick={() => refetch()}>Reintentar</Button>}>
+        <Alert
+          severity="error"
+          action={
+            <Button color="inherit" size="small" onClick={() => refetch()}>
+              Reintentar
+            </Button>
+          }
+        >
           No se pudo cargar la sesión de práctica.
         </Alert>
       </Box>
     )
   }
 
-  // Si ya terminó, mostrar resumen
+  const isMultipleChoice = session.mode === 'MULTIPLE_CHOICE'
+
+  // Sesión completada: resumen según el modo
   if (session.status === 'COMPLETED') {
     return (
       <Container maxWidth="md" sx={{ py: 4 }}>
-        <PracticeSummary sessionId={sessionId} deckId={session.deckId} />
+        {isMultipleChoice ? (
+          <MultipleChoiceSummary sessionId={sessionId} deckId={session.deckId} />
+        ) : (
+          <PracticeSummary sessionId={sessionId} deckId={session.deckId} />
+        )}
       </Container>
     )
   }
 
-  // Si se canceló y entramos directo
+  // Sesión cancelada
   if (session.status === 'CANCELLED') {
     return (
       <Container maxWidth="md" sx={{ py: 4 }}>
         <Alert severity="warning">Esta sesión fue cancelada.</Alert>
-        <Button sx={{ mt: 2 }} onClick={() => navigate(`/decks/${session.deckId}`)}>Volver</Button>
+        <Button sx={{ mt: 2 }} onClick={() => navigate(`/decks/${session.deckId}`)}>
+          Volver
+        </Button>
       </Container>
     )
   }
 
   const currentCard = session.currentCard
 
-  async function handleResult(result: PracticeResult) {
+  async function handleResult(result: PracticeResult, userAnswer?: string) {
     if (!currentCard) return
     const responseTimeMs = Date.now() - startTimeRef.current
 
@@ -84,7 +101,7 @@ export function PracticePage() {
       setErrorMessage(null)
       await submitResult.mutateAsync({
         cardId: currentCard.id,
-        input: { result, responseTimeMs },
+        input: { result, responseTimeMs, userAnswer },
       })
     } catch (error) {
       setErrorMessage(getErrorMessage(error))
@@ -105,29 +122,42 @@ export function PracticePage() {
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'grey.50', display: 'flex', flexDirection: 'column' }}>
-      <PracticeHeader 
+      <PracticeHeader
         deckName={deckQuery.data?.name ?? 'Cargando...'}
-        currentPosition={session.completedCards + (currentCard ? 1 : 0)} 
+        currentPosition={session.completedCards + (currentCard ? 1 : 0)}
         totalCards={session.totalCards}
         completedCards={session.completedCards}
         onCancel={() => setShowCancelDialog(true)}
+        mode={session.mode}
       />
-      
-      <Container maxWidth="md" sx={{ py: { xs: 4, md: 8 }, flex: 1, display: 'flex', flexDirection: 'column' }}>
+
+      <Container
+        maxWidth="md"
+        sx={{ py: { xs: 4, md: 6 }, flex: 1, display: 'flex', flexDirection: 'column' }}
+      >
         {currentCard ? (
-          <>
-            <PracticeCard 
-              card={currentCard} 
-              isFlipped={isFlipped}
-              onFlip={() => setIsFlipped(true)}
-            />
-            
-            <PracticeControls 
-              visible={isFlipped}
+          isMultipleChoice ? (
+            /* ── Modo Opción Múltiple ── */
+            <MultipleChoiceCard
+              card={currentCard}
+              onResult={(result, userAnswer) => handleResult(result, userAnswer)}
               disabled={submitResult.isPending}
-              onResult={handleResult}
             />
-          </>
+          ) : (
+            /* ── Modo Flashcard tradicional ── */
+            <>
+              <PracticeCard
+                card={currentCard}
+                isFlipped={isFlipped}
+                onFlip={() => setIsFlipped(true)}
+              />
+              <PracticeControls
+                visible={isFlipped}
+                disabled={submitResult.isPending}
+                onResult={handleResult}
+              />
+            </>
+          )
         ) : (
           <Alert severity="info">No hay tarjetas pendientes.</Alert>
         )}
@@ -156,5 +186,3 @@ export function PracticePage() {
     </Box>
   )
 }
-
-import { Button } from '@mui/material'

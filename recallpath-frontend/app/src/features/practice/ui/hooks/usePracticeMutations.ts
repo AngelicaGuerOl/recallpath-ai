@@ -7,10 +7,17 @@ import {
 import type { PracticeAttemptInput, PracticeMode } from '../../domain/entities/Practice'
 import { practiceQueryKeys } from './practiceQueryKeys'
 
+type StartPracticeInput = {
+  deckId: number
+  mode?: PracticeMode
+  incorrectOnly?: boolean
+  sourceSessionId?: number
+}
+
 export function useStartPracticeSession() {
   return useMutation({
-    mutationFn: ({ deckId, mode }: { deckId: number; mode?: PracticeMode }) =>
-      startOrResumePracticeSession(deckId, mode),
+    mutationFn: ({ deckId, mode, incorrectOnly, sourceSessionId }: StartPracticeInput) =>
+      startOrResumePracticeSession(deckId, mode, incorrectOnly, sourceSessionId),
   })
 }
 
@@ -20,7 +27,7 @@ export function useSubmitPracticeResult(sessionId: number) {
     mutationFn: ({ cardId, input }: { cardId: number; input: PracticeAttemptInput }) =>
       submitPracticeAttempt(sessionId, cardId, input),
     onSuccess: (updatedSession) => {
-      // Update session locally to reflect the new state immediately
+      // Actualizar la sesión en caché inmediatamente para reflejar el nuevo estado
       queryClient.setQueryData(practiceQueryKeys.session(sessionId), updatedSession)
     },
   })
