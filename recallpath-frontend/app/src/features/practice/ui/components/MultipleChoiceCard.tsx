@@ -1,7 +1,7 @@
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import CancelIcon from '@mui/icons-material/Cancel'
 import { Box, Button, Chip, Paper, Stack, Typography } from '@mui/material'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import type { PracticeSessionCard } from '../../domain/entities/Practice'
 
 type MultipleChoiceCardProps = {
@@ -17,11 +17,13 @@ export function MultipleChoiceCard({ card, onResult, disabled }: MultipleChoiceC
   const [isConfirmed, setIsConfirmed] = useState(false)
   const options = card.options ?? []
 
-  // Reset state when card changes
-  useEffect(() => {
+  const [prevCardId, setPrevCardId] = useState(card.id)
+
+  if (card.id !== prevCardId) {
+    setPrevCardId(card.id)
     setSelectedIndex(null)
     setIsConfirmed(false)
-  }, [card.id])
+  }
 
   function handleSelect(index: number) {
     if (isConfirmed || disabled) return

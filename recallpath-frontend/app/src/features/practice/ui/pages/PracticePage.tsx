@@ -74,7 +74,7 @@ export function PracticePage() {
     return (
       <Container maxWidth="md" sx={{ py: 4 }}>
         {isMultipleChoice || isWrittenResponse ? (
-          <MultipleChoiceSummary sessionId={sessionId} deckId={session.deckId} mode={session.mode as any} />
+          <MultipleChoiceSummary sessionId={sessionId} deckId={session.deckId} mode={session.mode as 'MULTIPLE_CHOICE' | 'WRITTEN_RESPONSE'} />
         ) : (
           <PracticeSummary sessionId={sessionId} deckId={session.deckId} />
         )}

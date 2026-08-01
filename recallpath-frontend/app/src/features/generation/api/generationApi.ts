@@ -34,6 +34,6 @@ export async function getGenerationRun(runId: number): Promise<GenerationRunResp
   return httpClient.get<GenerationRunResponse>(`/generation-runs/${runId}`);
 }
 
-export async function getGeneratedFlashcards(runId: number): Promise<any[]> {
-  return httpClient.get<any[]>(`/generation-runs/${runId}/flashcards`);
+export async function getGeneratedFlashcards(runId: number): Promise<unknown[]> {
+  return httpClient.get<unknown[]>(`/generation-runs/${runId}/flashcards`);
 }

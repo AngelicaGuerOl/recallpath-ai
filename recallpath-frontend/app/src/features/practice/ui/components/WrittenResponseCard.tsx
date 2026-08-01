@@ -2,7 +2,7 @@ import { Box, Button, Card, CardContent, CircularProgress, Typography, TextField
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined'
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined'
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import type { PracticeSessionCard } from '../../domain/entities/Practice'
 
 type WrittenResponseCardProps = {
@@ -16,10 +16,12 @@ type WrittenResponseCardProps = {
 export function WrittenResponseCard({ card, lastEvaluation, onResult, onNext, disabled }: WrittenResponseCardProps) {
   const [answer, setAnswer] = useState('')
 
-  // Resetear el textarea cuando cambia la tarjeta
-  useEffect(() => {
+  const [prevCardId, setPrevCardId] = useState(card.id)
+
+  if (card.id !== prevCardId) {
+    setPrevCardId(card.id)
     setAnswer('')
-  }, [card.id])
+  }
 
   const handleEvaluate = () => {
     if (answer.trim()) {
