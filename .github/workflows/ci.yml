@@ -1,0 +1,57 @@
+name: RecallPath AI CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  backend-test:
+    name: Backend Build & Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./recallpath-backend
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Java 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: maven
+        
+    - name: Build and test with Maven
+      run: ./mvnw test
+
+  frontend-test:
+    name: Frontend Build & Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./recallpath-frontend/app
+        
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Node.js 20
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: './recallpath-frontend/app/package-lock.json'
+        
+    - name: Install dependencies
+      run: npm install
+      
+    - name: Run Linter
+      run: npm run lint
+      
+    - name: Run Tests
+      run: npm run test
+      
+    - name: Build
+      run: npm run build
