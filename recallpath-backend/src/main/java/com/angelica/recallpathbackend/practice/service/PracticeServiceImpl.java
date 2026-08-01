@@ -23,6 +23,8 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.angelica.recallpathbackend.features.generation.service.SemanticEvaluationService;
+import com.angelica.recallpathbackend.practice.dto.EvaluationResponse;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -42,6 +44,7 @@ public class PracticeServiceImpl implements PracticeService {
     private final FlashcardRepository flashcardRepository;
     private final PracticeMapper practiceMapper;
     private final ObjectMapper objectMapper;
+    private final SemanticEvaluationService semanticEvaluationService;
 
     public PracticeServiceImpl(
             PracticeSessionRepository sessionRepository,
@@ -50,7 +53,8 @@ public class PracticeServiceImpl implements PracticeService {
             DeckRepository deckRepository,
             FlashcardRepository flashcardRepository,
             PracticeMapper practiceMapper,
-            ObjectMapper objectMapper) {
+            ObjectMapper objectMapper,
+            SemanticEvaluationService semanticEvaluationService) {
         this.sessionRepository = sessionRepository;
         this.sessionCardRepository = sessionCardRepository;
         this.attemptRepository = attemptRepository;
@@ -58,6 +62,7 @@ public class PracticeServiceImpl implements PracticeService {
         this.flashcardRepository = flashcardRepository;
         this.practiceMapper = practiceMapper;
         this.objectMapper = objectMapper;
+        this.semanticEvaluationService = semanticEvaluationService;
     }
 
     @Override
@@ -258,13 +263,39 @@ public class PracticeServiceImpl implements PracticeService {
             throw new InvalidPracticeStateException("La tarjeta respondida no es la actual");
         }
 
-        PracticeResult result = PracticeResult.valueOf(request.result().toUpperCase());
+        PracticeResult result;
+        String feedback = null;
+        String provider = null;
+        String model = null;
+
+        if (session.getMode() == PracticeMode.WRITTEN_RESPONSE) {
+            if (request.userAnswer() == null || request.userAnswer().isBlank()) {
+                throw new InvalidPracticeStateException("La respuesta no puede estar vacía.");
+            }
+            EvaluationResponse eval = semanticEvaluationService.evaluate(
+                    sessionCard.getTermSnapshot(),
+                    sessionCard.getDefinitionSnapshot(),
+                    request.userAnswer()
+            );
+            result = eval.correct() ? PracticeResult.CORRECT : PracticeResult.INCORRECT;
+            feedback = eval.feedback();
+            provider = semanticEvaluationService.getProviderName();
+            model = semanticEvaluationService.getModelName();
+        } else {
+            if (request.result() == null) {
+                throw new InvalidPracticeStateException("El resultado es obligatorio en este modo.");
+            }
+            result = PracticeResult.valueOf(request.result().toUpperCase());
+        }
 
         PracticeAttempt attempt = new PracticeAttempt();
         attempt.setSessionCard(sessionCard);
         attempt.setResult(result);
         attempt.setResponseTimeMs(request.responseTimeMs());
         attempt.setUserAnswer(request.userAnswer());
+        attempt.setFeedback(feedback);
+        attempt.setProvider(provider);
+        attempt.setModel(model);
         attemptRepository.save(attempt);
 
         sessionCard.setAnswered(true);
@@ -285,7 +316,17 @@ public class PracticeServiceImpl implements PracticeService {
 
         sessionRepository.save(session);
 
-        return getSession(sessionId);
+        EvaluationResponse evalResponse = null;
+        if (session.getMode() == PracticeMode.WRITTEN_RESPONSE) {
+            evalResponse = new EvaluationResponse(result == PracticeResult.CORRECT, feedback);
+        }
+
+        PracticeSessionResponse sessionResp = getSession(sessionId);
+        return new PracticeSessionResponse(
+            sessionResp.id(), sessionResp.deckId(), sessionResp.mode(), sessionResp.status(),
+            sessionResp.totalCards(), sessionResp.completedCards(), sessionResp.currentCard(),
+            evalResponse, sessionResp.startedAt(), sessionResp.completedAt()
+        );
     }
 
     private void updateFlashcardProgress(Flashcard flashcard, PracticeResult result) {
@@ -360,7 +401,8 @@ public class PracticeServiceImpl implements PracticeService {
                 .map(a -> new IncorrectCardSummary(
                         a.getSessionCard().getTermSnapshot(),
                         a.getSessionCard().getDefinitionSnapshot(),
-                        a.getUserAnswer()))
+                        a.getUserAnswer(),
+                        a.getFeedback()))
                 .toList();
 
         return new PracticeSummaryResponse(

@@ -58,6 +58,7 @@ public class PracticeMapper {
             session.getTotalCards(),
             session.getCompletedCards(),
             toCardResponse(currentCard),
+            null,
             session.getStartedAt(),
             session.getCompletedAt()
         );

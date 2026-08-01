@@ -10,6 +10,7 @@ public record PracticeSessionResponse(
     Integer totalCards,
     Integer completedCards,
     PracticeSessionCardResponse currentCard,
+    EvaluationResponse lastEvaluation,
     LocalDateTime startedAt,
     LocalDateTime completedAt
 ) {}

@@ -10,6 +10,7 @@ import { getErrorMessage } from '../../../../shared/api/apiError'
 type MultipleChoiceSummaryProps = {
   sessionId: number
   deckId: number
+  mode: 'MULTIPLE_CHOICE' | 'WRITTEN_RESPONSE'
 }
 
 function getFeedbackMessage(accuracy: number) {
@@ -18,7 +19,7 @@ function getFeedbackMessage(accuracy: number) {
   return 'Este intento te ayudó a identificar qué conceptos debes reforzar.'
 }
 
-export function MultipleChoiceSummary({ sessionId, deckId }: MultipleChoiceSummaryProps) {
+export function MultipleChoiceSummary({ sessionId, deckId, mode }: MultipleChoiceSummaryProps) {
   const navigate = useNavigate()
   const { data: summary, isLoading, isError } = usePracticeSummary(sessionId, true)
   const startPractice = useStartPracticeSession()
@@ -51,7 +52,7 @@ export function MultipleChoiceSummary({ sessionId, deckId }: MultipleChoiceSumma
       setRetryError(null)
       const session = await startPractice.mutateAsync({
         deckId,
-        mode: 'MULTIPLE_CHOICE',
+        mode,
         incorrectOnly: true,
         sourceSessionId: sessionId,
       })
@@ -66,7 +67,7 @@ export function MultipleChoiceSummary({ sessionId, deckId }: MultipleChoiceSumma
       setRetryError(null)
       const session = await startPractice.mutateAsync({
         deckId,
-        mode: 'MULTIPLE_CHOICE',
+        mode,
       })
       navigate(`/practice/${session.id}`)
     } catch (error) {

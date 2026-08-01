@@ -10,12 +10,13 @@ import {
 } from '@mui/material'
 import SchoolOutlinedIcon from '@mui/icons-material/SchoolOutlined'
 import QuizOutlinedIcon from '@mui/icons-material/QuizOutlined'
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined'
 
 type PracticeModeSelectorDialogProps = {
   open: boolean
   activeCardsCount: number
   onClose: () => void
-  onSelect: (mode: 'FLASHCARDS' | 'MULTIPLE_CHOICE') => void
+  onSelect: (mode: 'FLASHCARDS' | 'MULTIPLE_CHOICE' | 'WRITTEN_RESPONSE') => void
   disabled?: boolean
 }
 
@@ -107,6 +108,45 @@ export function PracticeModeSelectorDialog({
               {!canPracticeMultipleChoice && (
                 <Typography variant="caption" color="error">
                   Requiere al menos 4 tarjetas elegibles (tienes {activeCardsCount}).
+                </Typography>
+              )}
+            </Box>
+          </Box>
+
+          <Box
+            component="button"
+            disabled={!canPracticeFlashcards || disabled}
+            onClick={() => onSelect('WRITTEN_RESPONSE')}
+            sx={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              textAlign: 'left',
+              gap: 2,
+              p: 2.5,
+              border: 1,
+              borderColor: 'divider',
+              borderRadius: 2,
+              bgcolor: 'background.paper',
+              cursor: canPracticeFlashcards && !disabled ? 'pointer' : 'default',
+              opacity: canPracticeFlashcards ? 1 : 0.6,
+              transition: 'all 0.2s ease-in-out',
+              '&:hover': canPracticeFlashcards && !disabled ? {
+                borderColor: 'primary.main',
+                bgcolor: 'primary.50',
+              } : {},
+            }}
+          >
+            <EditOutlinedIcon color="primary" sx={{ fontSize: 32, mt: 0.5 }} />
+            <Box>
+              <Typography variant="h6" sx={{ fontSize: '1.1rem', mb: 0.5 }}>
+                Respuesta escrita
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                Escribe la respuesta con tus palabras. Una IA evaluará si la idea es correcta.
+              </Typography>
+              {!canPracticeFlashcards && (
+                <Typography variant="caption" color="error">
+                  Requiere al menos 1 tarjeta elegible.
                 </Typography>
               )}
             </Box>

@@ -25,6 +25,15 @@ public class PracticeAttempt {
     @Column(name = "user_answer", columnDefinition = "TEXT")
     private String userAnswer;
 
+    @Column(columnDefinition = "TEXT")
+    private String feedback;
+
+    @Column(length = 50)
+    private String provider;
+
+    @Column(length = 100)
+    private String model;
+
     @Column(name = "answered_at", nullable = false)
     private LocalDateTime answeredAt;
 
@@ -51,4 +60,13 @@ public class PracticeAttempt {
     
     public LocalDateTime getAnsweredAt() { return answeredAt; }
     public void setAnsweredAt(LocalDateTime answeredAt) { this.answeredAt = answeredAt; }
+
+    public String getFeedback() { return feedback; }
+    public void setFeedback(String feedback) { this.feedback = feedback; }
+
+    public String getProvider() { return provider; }
+    public void setProvider(String provider) { this.provider = provider; }
+
+    public String getModel() { return model; }
+    public void setModel(String model) { this.model = model; }
 }

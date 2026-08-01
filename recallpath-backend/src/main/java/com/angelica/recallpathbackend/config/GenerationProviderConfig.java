@@ -3,6 +3,9 @@ package com.angelica.recallpathbackend.config;
 import com.angelica.recallpathbackend.features.generation.service.FakeFlashcardGenerationService;
 import com.angelica.recallpathbackend.features.generation.service.FlashcardGenerationService;
 import com.angelica.recallpathbackend.features.generation.service.GeminiFlashcardGenerationService;
+import com.angelica.recallpathbackend.features.generation.service.SemanticEvaluationService;
+import com.angelica.recallpathbackend.features.generation.service.FakeSemanticEvaluationService;
+import com.angelica.recallpathbackend.features.generation.service.GeminiSemanticEvaluationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -36,6 +39,13 @@ public class GenerationProviderConfig {
     }
 
     @Bean
+    @ConditionalOnProperty(name = "app.ai.provider", havingValue = "fake", matchIfMissing = true)
+    public SemanticEvaluationService fakeSemanticEvaluationService() {
+        log.info("[AI-Eval] Using provider: FAKE (no real API calls will be made)");
+        return new FakeSemanticEvaluationService();
+    }
+
+    @Bean
     @ConditionalOnProperty(name = "app.ai.provider", havingValue = "gemini")
     public FlashcardGenerationService geminiFlashcardGenerationService(GeminiProperties props) {
         String key = props.apiKey();
@@ -46,5 +56,16 @@ public class GenerationProviderConfig {
         }
         log.info("[AI] Using provider: GEMINI (model={})", props.model());
         return new GeminiFlashcardGenerationService(props);
+    }
+
+    @Bean
+    @ConditionalOnProperty(name = "app.ai.provider", havingValue = "gemini")
+    public SemanticEvaluationService geminiSemanticEvaluationService(GeminiProperties props) {
+        String key = props.apiKey();
+        if (key == null || key.isBlank()) {
+            throw new IllegalStateException("GEMINI_API_KEY obligatoria para evaluación");
+        }
+        log.info("[AI-Eval] Using provider: GEMINI (model={})", props.model());
+        return new GeminiSemanticEvaluationService(props);
     }
 }

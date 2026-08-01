@@ -12,13 +12,14 @@ type PracticeHeaderProps = {
   totalCards: number
   completedCards: number
   onCancel(): void
-  mode?: 'FLASHCARDS' | 'MULTIPLE_CHOICE'
+  mode?: 'FLASHCARDS' | 'MULTIPLE_CHOICE' | 'WRITTEN_RESPONSE'
 }
 
 export function PracticeHeader({ deckName, currentPosition, totalCards, completedCards, onCancel, mode = 'FLASHCARDS' }: PracticeHeaderProps) {
   const progress = totalCards > 0 ? (completedCards / totalCards) * 100 : 0
   const isMultipleChoice = mode === 'MULTIPLE_CHOICE'
-  const itemName = isMultipleChoice ? 'Pregunta' : 'Tarjeta'
+  const isWrittenResponse = mode === 'WRITTEN_RESPONSE'
+  const itemName = isMultipleChoice || isWrittenResponse ? 'Pregunta' : 'Tarjeta'
 
   return (
     <Box sx={{ borderBottom: 1, borderColor: 'divider', pb: 2, pt: 2, px: { xs: 2, md: 4 } }}>
@@ -39,7 +40,7 @@ export function PracticeHeader({ deckName, currentPosition, totalCards, complete
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1, alignItems: 'flex-end' }}>
           <Box>
             <Typography variant="caption" sx={{ display: 'block', color: 'primary.main', fontWeight: 'bold', mb: 0.5 }}>
-              {isMultipleChoice ? 'OPCIÓN MÚLTIPLE' : 'TARJETAS'}
+              {isMultipleChoice ? 'OPCIÓN MÚLTIPLE' : isWrittenResponse ? 'RESPUESTA ESCRITA' : 'TARJETAS'}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 'medium' }}>
               {itemName} {currentPosition} de {totalCards}

@@ -10,9 +10,10 @@ import { PracticeHeader } from '../components/PracticeHeader'
 import { PracticeSummary } from '../components/PracticeSummary'
 import { MultipleChoiceCard } from '../components/MultipleChoiceCard'
 import { MultipleChoiceSummary } from '../components/MultipleChoiceSummary'
+import { WrittenResponseCard } from '../components/WrittenResponseCard'
 import { useCancelPracticeSession, useSubmitPracticeResult } from '../hooks/usePracticeMutations'
 import { usePracticeSession } from '../hooks/usePractice'
-import type { PracticeResult } from '../../domain/entities/Practice'
+import type { PracticeResult, PracticeSessionCard } from '../../domain/entities/Practice'
 
 export function PracticePage() {
   const { sessionId: sessionIdParam } = useParams<{ sessionId: string }>()
@@ -29,6 +30,7 @@ export function PracticePage() {
   const [showCancelDialog, setShowCancelDialog] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [prevCardId, setPrevCardId] = useState<number | undefined>(undefined)
+  const [evaluatedCard, setEvaluatedCard] = useState<PracticeSessionCard | null>(null)
 
   useEffect(() => {
     if (session?.currentCard && session.currentCard.id !== prevCardId) {
@@ -65,13 +67,14 @@ export function PracticePage() {
   }
 
   const isMultipleChoice = session.mode === 'MULTIPLE_CHOICE'
+  const isWrittenResponse = session.mode === 'WRITTEN_RESPONSE'
 
   // Sesión completada: resumen según el modo
   if (session.status === 'COMPLETED') {
     return (
       <Container maxWidth="md" sx={{ py: 4 }}>
-        {isMultipleChoice ? (
-          <MultipleChoiceSummary sessionId={sessionId} deckId={session.deckId} />
+        {isMultipleChoice || isWrittenResponse ? (
+          <MultipleChoiceSummary sessionId={sessionId} deckId={session.deckId} mode={session.mode as any} />
         ) : (
           <PracticeSummary sessionId={sessionId} deckId={session.deckId} />
         )}
@@ -91,14 +94,19 @@ export function PracticePage() {
     )
   }
 
-  const currentCard = session.currentCard
+  // Si hay una evaluación pendiente de mostrar, mostramos la tarjeta que se acaba de evaluar
+  const currentCard = session.lastEvaluation && evaluatedCard ? evaluatedCard : session.currentCard
 
-  async function handleResult(result: PracticeResult, userAnswer?: string) {
+  async function handleResult(result?: PracticeResult, userAnswer?: string) {
     if (!currentCard) return
     const responseTimeMs = Date.now() - startTimeRef.current
 
     try {
       setErrorMessage(null)
+      if (isWrittenResponse) {
+        setEvaluatedCard(currentCard)
+      }
+      
       await submitResult.mutateAsync({
         cardId: currentCard.id,
         input: { result, responseTimeMs, userAnswer },
@@ -141,6 +149,18 @@ export function PracticePage() {
             <MultipleChoiceCard
               card={currentCard}
               onResult={(result, userAnswer) => handleResult(result, userAnswer)}
+              disabled={submitResult.isPending}
+            />
+          ) : isWrittenResponse ? (
+            /* ── Modo Respuesta Escrita ── */
+            <WrittenResponseCard
+              card={currentCard}
+              lastEvaluation={session.lastEvaluation}
+              onResult={(userAnswer) => handleResult(undefined, userAnswer)}
+              onNext={() => {
+                setEvaluatedCard(null)
+                refetch()
+              }}
               disabled={submitResult.isPending}
             />
           ) : (

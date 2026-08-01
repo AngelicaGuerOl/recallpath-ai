@@ -14,6 +14,7 @@ import com.angelica.recallpathbackend.practice.repository.PracticeAttemptReposit
 import com.angelica.recallpathbackend.practice.repository.PracticeSessionCardRepository;
 import com.angelica.recallpathbackend.practice.repository.PracticeSessionRepository;
 import com.angelica.recallpathbackend.practice.service.PracticeServiceImpl;
+import com.angelica.recallpathbackend.features.generation.service.SemanticEvaluationService;
 import com.angelica.recallpathbackend.deck.repository.DeckRepository;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
@@ -39,6 +40,7 @@ class PracticeServiceImplMultipleChoiceTest {
     @Mock private DeckRepository deckRepository;
     @Mock private FlashcardRepository flashcardRepository;
     @Mock private PracticeMapper practiceMapper;
+    @Mock private SemanticEvaluationService semanticEvaluationService;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -53,7 +55,8 @@ class PracticeServiceImplMultipleChoiceTest {
                 deckRepository,
                 flashcardRepository,
                 practiceMapper,
-                objectMapper);
+                objectMapper,
+                semanticEvaluationService);
     }
 
     // ─── buildOptionsSnapshot ───────────────────────────────────────────────

@@ -152,10 +152,35 @@ export function PracticeSummary({ sessionId, deckId }: PracticeSummaryProps) {
                     {card.term}
                   </Typography>
                 </AccordionSummary>
-                <AccordionDetails sx={{ bgcolor: 'grey.50', borderTop: 1, borderColor: 'divider' }}>
-                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                    {card.definition}
-                  </Typography>
+                <AccordionDetails sx={{ bgcolor: 'grey.50', borderTop: 1, borderColor: 'divider', display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                  {card.userAnswer && (
+                    <Box>
+                      <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700, display: 'block' }}>
+                        TU RESPUESTA:
+                      </Typography>
+                      <Typography variant="body2" color="error.main">
+                        {card.userAnswer}
+                      </Typography>
+                    </Box>
+                  )}
+                  {card.feedback && (
+                    <Box>
+                      <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700, display: 'block' }}>
+                        FEEDBACK DE LA IA:
+                      </Typography>
+                      <Typography variant="body2" color="primary.main" sx={{ fontWeight: 500 }}>
+                        {card.feedback}
+                      </Typography>
+                    </Box>
+                  )}
+                  <Box>
+                    <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700, display: 'block' }}>
+                      DEFINICIÓN DE REFERENCIA:
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                      {card.definition}
+                    </Typography>
+                  </Box>
                 </AccordionDetails>
               </Accordion>
             ))}

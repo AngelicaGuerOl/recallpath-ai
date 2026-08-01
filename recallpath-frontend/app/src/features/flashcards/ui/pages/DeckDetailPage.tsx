@@ -1,7 +1,6 @@
 import AddIcon from '@mui/icons-material/Add'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import SchoolOutlinedIcon from '@mui/icons-material/SchoolOutlined'
-import QuizOutlinedIcon from '@mui/icons-material/QuizOutlined'
 import {
   Alert,
   Box,
@@ -71,7 +70,6 @@ export function DeckDetailPage() {
 
   // Practicar: habilitado cuando hay al menos 1 tarjeta activa y el deck no está archivado
   const canPractice = !isArchived && activeCount >= PRACTICE_MIN.flashcards
-  const canPracticeMultipleChoice = !isArchived && activeCount >= PRACTICE_MIN.opcionMultiple
 
   const mutationPending =
     createFlashcard.isPending ||
@@ -150,7 +148,7 @@ export function DeckDetailPage() {
       ? '1 tarjeta activa'
       : `${activeCount} tarjetas activas`
 
-  async function handlePractice(mode: 'FLASHCARDS' | 'MULTIPLE_CHOICE') {
+  async function handlePractice(mode: 'FLASHCARDS' | 'MULTIPLE_CHOICE' | 'WRITTEN_RESPONSE') {
     try {
       setMutationError(null)
       const session = await startPractice.mutateAsync({ deckId, mode })

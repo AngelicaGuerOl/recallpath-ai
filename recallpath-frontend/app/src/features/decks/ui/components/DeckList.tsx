@@ -23,11 +23,12 @@ export function DeckList({ decks, onEdit, onArchive, onUnarchive }: DeckListProp
       aria-label="Listado de conjuntos"
       sx={{
         display: 'grid',
-        gap: 24,
+        gap: 3,
+        alignContent: 'flex-start',
         gridTemplateColumns: {
           xs: '1fr',
           sm: 'repeat(2, minmax(0, 1fr))',
-          lg: 'repeat(3, minmax(0, 1fr))',
+          md: 'repeat(3, minmax(0, 1fr))',
         },
       }}
     >
@@ -40,14 +41,14 @@ export function DeckList({ decks, onEdit, onArchive, onUnarchive }: DeckListProp
             elevation={0}
             sx={{
               p: 3,
-              borderRadius: 4,
+              borderRadius: 3,
               border: 1,
               borderColor: 'divider',
               bgcolor: 'background.paper',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
-              minHeight: 220,
+              height: '100%',
             }}
           >
             <Stack spacing={2} sx={{ minHeight: 0 }}>

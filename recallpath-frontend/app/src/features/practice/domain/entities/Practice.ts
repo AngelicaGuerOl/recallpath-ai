@@ -1,4 +1,4 @@
-export type PracticeMode = 'FLASHCARDS' | 'MULTIPLE_CHOICE'
+export type PracticeMode = 'FLASHCARDS' | 'MULTIPLE_CHOICE' | 'WRITTEN_RESPONSE'
 
 export type PracticeStatus = 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED'
 
@@ -30,6 +30,10 @@ export type PracticeSession = {
   totalCards: number
   completedCards: number
   currentCard: PracticeSessionCard | null
+  lastEvaluation?: {
+    correct: boolean
+    feedback: string
+  } | null
   startedAt: string
   completedAt: string | null
 }
@@ -39,6 +43,7 @@ export type IncorrectCardSummary = {
   term: string
   definition: string
   userAnswer?: string
+  feedback?: string
 }
 
 export type PracticeSummary = {
@@ -54,7 +59,7 @@ export type PracticeSummary = {
 }
 
 export type PracticeAttemptInput = {
-  result: PracticeResult
+  result?: PracticeResult
   responseTimeMs: number
   userAnswer?: string
 }
