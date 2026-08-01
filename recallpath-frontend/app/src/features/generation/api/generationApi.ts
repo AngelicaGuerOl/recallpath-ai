@@ -26,6 +26,15 @@ export interface GenerationRunResponse {
   createdAt: string;
 }
 
+export interface GeneratedFlashcard {
+  id: number;
+  term: string;
+  definition: string;
+  difficulty: string;
+  sourceExcerpt?: string;
+  sourcePage?: number;
+}
+
 export async function createGenerationRun(documentId: number, data: GenerationRunRequest): Promise<GenerationRunResponse> {
   return httpClient.post<GenerationRunResponse>(`/documents/${documentId}/generation-runs`, data);
 }
@@ -34,6 +43,6 @@ export async function getGenerationRun(runId: number): Promise<GenerationRunResp
   return httpClient.get<GenerationRunResponse>(`/generation-runs/${runId}`);
 }
 
-export async function getGeneratedFlashcards(runId: number): Promise<unknown[]> {
-  return httpClient.get<unknown[]>(`/generation-runs/${runId}/flashcards`);
+export async function getGeneratedFlashcards(runId: number): Promise<GeneratedFlashcard[]> {
+  return httpClient.get<GeneratedFlashcard[]>(`/generation-runs/${runId}/flashcards`);
 }

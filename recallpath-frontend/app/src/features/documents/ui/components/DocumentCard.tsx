@@ -22,7 +22,7 @@ export function DocumentCard({ document, onArchive, onRestore }: DocumentCardPro
 
   const handleMenuClose = (event?: unknown) => {
     // If it's a mouse event from MenuItem onClick, event might be React.MouseEvent
-    if (event && 'stopPropagation' in event) {
+    if (event && typeof event === 'object' && 'stopPropagation' in event) {
       (event as React.SyntheticEvent).stopPropagation();
       (event as React.SyntheticEvent).preventDefault();
     }
