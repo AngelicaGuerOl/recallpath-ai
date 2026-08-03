@@ -78,9 +78,8 @@ describe('MultipleChoiceCard', () => {
     radio = screen.getByRole('radio', { name: /Proteína que cataliza reacciones bioquímicas/i })
     expect(radio).toHaveAttribute('aria-checked', 'true')
     
-    // No feedback should be shown yet
-    expect(screen.queryByText('¡Correcto!')).not.toBeInTheDocument()
-    expect(screen.queryByText('Todavía no.')).not.toBeInTheDocument()
+    // No next button should be shown yet
+    expect(screen.queryByRole('button', { name: /Siguiente pregunta/i })).not.toBeInTheDocument()
   })
 
   it('no se puede cambiar la respuesta una vez confirmada', async () => {
@@ -91,13 +90,13 @@ describe('MultipleChoiceCard', () => {
     await user.click(screen.getByText('División del núcleo celular'))
     await user.click(screen.getByRole('button', { name: /Confirmar respuesta/i }))
 
-    expect(screen.getByText('Todavía no.')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Siguiente pregunta/i })).toBeInTheDocument()
     expect(onResult).not.toHaveBeenCalled()
   })
 
   // ─── Retroalimentación ───────────────────────────────────────────────────
 
-  it('muestra "¡Correcto!" al confirmar la opción correcta', async () => {
+  it('muestra el icono de correcto al confirmar la opción correcta', async () => {
     const user = userEvent.setup()
     renderCard()
 
@@ -105,28 +104,20 @@ describe('MultipleChoiceCard', () => {
       screen.getByText('Proceso por el que las plantas producen su propio alimento'),
     )
     await user.click(screen.getByRole('button', { name: /Confirmar respuesta/i }))
-    expect(screen.getByText('¡Correcto!')).toBeInTheDocument()
+    expect(screen.getByTestId('CheckCircleIcon')).toBeInTheDocument()
   })
 
-  it('muestra "Todavía no." al confirmar una opción incorrecta', async () => {
+  it('muestra el icono de incorrecto al confirmar una opción incorrecta y marca la correcta', async () => {
     const user = userEvent.setup()
     renderCard()
 
     await user.click(screen.getByText('División del núcleo celular'))
     await user.click(screen.getByRole('button', { name: /Confirmar respuesta/i }))
-    expect(screen.getByText('Todavía no.')).toBeInTheDocument()
-  })
-
-  it('muestra la respuesta correcta al fallar', async () => {
-    const user = userEvent.setup()
-    renderCard()
-
-    await user.click(screen.getByText('La fuerza que atrae los cuerpos hacia el centro de la Tierra'))
-    await user.click(screen.getByRole('button', { name: /Confirmar respuesta/i }))
-
-    expect(
-      screen.getAllByText('Proceso por el que las plantas producen su propio alimento').length,
-    ).toBeGreaterThanOrEqual(1)
+    
+    // The selected wrong answer gets a cancel icon
+    expect(screen.getByTestId('CancelIcon')).toBeInTheDocument()
+    // The correct answer gets a check circle icon
+    expect(screen.getByTestId('CheckCircleIcon')).toBeInTheDocument()
   })
 
   // ─── Callback onResult ───────────────────────────────────────────────────
