@@ -125,7 +125,7 @@ export function MultipleChoiceCard({ card, onResult, disabled }: MultipleChoiceC
               startIcon = <CancelIcon color="error" />
             } else {
               stateStyles = {
-                opacity: 0.7,
+                '&.Mui-disabled': { color: 'text.secondary', borderColor: 'divider' },
               }
             }
           } else if (isSelected) {
@@ -174,48 +174,6 @@ export function MultipleChoiceCard({ card, onResult, disabled }: MultipleChoiceC
 
       {/* Retroalimentación + botón Confirmar/Siguiente */}
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        {isConfirmed && (
-          <Box
-            aria-live="polite"
-            sx={{
-              p: 2,
-              borderRadius: '12px',
-              bgcolor: options[selectedIndex!]?.correct ? 'success.50' : 'error.50',
-              border: 1,
-              borderColor: options[selectedIndex!]?.correct ? 'success.200' : 'error.200',
-              display: 'flex',
-              alignItems: 'flex-start',
-              gap: 1.5,
-            }}
-          >
-            {options[selectedIndex!]?.correct ? (
-              <CheckCircleIcon color="success" sx={{ flexShrink: 0, mt: 0.25 }} />
-            ) : (
-              <CancelIcon color="error" sx={{ flexShrink: 0, mt: 0.25 }} />
-            )}
-            <Box>
-              <Typography
-                variant="subtitle2"
-                sx={{
-                  fontWeight: 700,
-                  color: options[selectedIndex!]?.correct ? 'success.dark' : 'error.dark',
-                  mb: 0.5,
-                }}
-              >
-                {options[selectedIndex!]?.correct ? '¡Correcto!' : 'Todavía no.'}
-              </Typography>
-              {!options[selectedIndex!]?.correct && (
-                <Typography variant="body2" color="text.primary" sx={{ mt: 1 }}>
-                  Tu respuesta:<br />
-                  <span style={{ color: 'var(--mui-palette-error-main)' }}>{options[selectedIndex!]?.text}</span>
-                  <br /><br />
-                  Respuesta correcta:<br />
-                  <span style={{ color: 'var(--mui-palette-success-main)', fontWeight: 600 }}>{options.find((o) => o.correct)?.text}</span>
-                </Typography>
-              )}
-            </Box>
-          </Box>
-        )}
 
         <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
           {!isConfirmed ? (
